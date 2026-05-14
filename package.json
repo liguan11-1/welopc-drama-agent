@@ -1,0 +1,25 @@
+{
+  "name": "@welopc/drama-agent",
+  "version": "0.1.0",
+  "description": "WelOPC short drama agent scenario pack.",
+  "type": "module",
+  "bin": {
+    "welopc-drama-agent": "bin/welopc-drama-agent.js",
+    "welopc-drama": "bin/welopc-drama-agent.js"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "welopc",
+    "ai-drama",
+    "agent",
+    "seedance",
+    "storyboard"
+  ],
+  "author": "WelOPC",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

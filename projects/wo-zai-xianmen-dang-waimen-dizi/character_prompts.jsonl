@@ -1,0 +1,3 @@
+{"experiment_id":"EXP_CHAR_LIN_XI_ACTION_SHEET","asset_type":"character_action_sheet","target_path":"assets/reference_images/characters/lin_xi_action_sheet.png","prompt":"生成林溪动作和表情一致性设定表，参考已有林溪角色图。角色是 8 岁左右瘦小女孩，双辫、黑发凌乱、脸颊泥点、灰米色补丁衣、褪色蓝腰带、小布袋、草鞋。需要包含：举竹筒看天、蹲灶前扇火、捏紧布袋、半空回头、低头看草鞋离地、紧张、好奇、忍哭、下定决心。白底或浅纸底，不要文字标签，不要换衣服。","negative_prompt":"不要成人化，不要华丽仙裙，不要随机换脸，不要表情包夸张。","source_assets":["assets/reference_images/characters/lin_xi.png"]}
+{"experiment_id":"EXP_CHAR_XIAO_HUAI_ENVOY","asset_type":"character_reference","target_path":"assets/reference_images/characters/xiao_huai_envoy.png","prompt":"生成霄怀派女修角色设定图。年轻女修，白青色宗门服，束发，拂尘，腰间玉牌，神情冷淡，动作干净，像流程执行者而不是亲切仙女。包含正面、侧面、半身近景、拂尘动作、玉牌特写。写实国风仙侠短剧质感，竖屏 9:16，无文字。","negative_prompt":"不要网红妆，不要暴露服装，不要过度飘带，不要廉价页游盔甲。","source_assets":[]}
+

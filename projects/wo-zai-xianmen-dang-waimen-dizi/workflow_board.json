@@ -1,0 +1,97 @@
+{
+  "source_case": {
+    "name": "LibTV 金蝉脱壳画布",
+    "local_json": "D:/Agent/agent infra/liblib_project_detail.json",
+    "local_screenshot": "D:/Agent/agent infra/liblib_canvas_current.png",
+    "node_count": 942,
+    "connection_count": 224,
+    "image_resource_count": 662,
+    "image_generate_count": 115,
+    "video_generate_count": 32,
+    "text_node_count": 53,
+    "group_count": 61
+  },
+  "project": {
+    "project_id": "xianmen_outer_disciple_s1",
+    "title": "我在仙门当外门弟子",
+    "episode_id": "E01",
+    "episode_title": "云舟来村",
+    "ratio": "9:16"
+  },
+  "lanes": [
+    {
+      "lane_id": "content_design",
+      "name": "内容设定",
+      "status": "done",
+      "inputs": ["story_bible.md"],
+      "outputs": ["shots.jsonl", "voiceover_script.md"]
+    },
+    {
+      "lane_id": "character_consistency",
+      "name": "人物一致性",
+      "status": "partial",
+      "inputs": ["characters.json", "assets/reference_images/characters/lin_xi.png", "assets/reference_images/characters/wen_gengran.png"],
+      "outputs": ["assets/reference_images/characters/*.png"],
+      "missing": ["xiao_huai_envoy.png", "villagers.png", "lin_xi_expression_and_action_sheet.png"]
+    },
+    {
+      "lane_id": "scene_moodboard",
+      "name": "场景 moodboard",
+      "status": "pending",
+      "inputs": ["scenes.json"],
+      "outputs": ["assets/reference_images/moodboards/*.png"]
+    },
+    {
+      "lane_id": "lighting_tests",
+      "name": "光影调性",
+      "status": "pending",
+      "inputs": ["style_pack.json", "assets/reference_images/scenes/pingxi_courtyard.png"],
+      "outputs": ["assets/reference_images/lighting_tests/*.png"]
+    },
+    {
+      "lane_id": "fusion_tests",
+      "name": "人物+场景融合",
+      "status": "pending",
+      "inputs": ["fusion_prompts.jsonl"],
+      "outputs": ["assets/reference_images/fusion_tests/*.png"]
+    },
+    {
+      "lane_id": "multicam_tests",
+      "name": "九宫格多机位",
+      "status": "pending",
+      "inputs": ["multicam_prompts.jsonl"],
+      "outputs": ["assets/reference_images/multicam/*.png"]
+    },
+    {
+      "lane_id": "video_reference_frames",
+      "name": "视频首帧",
+      "status": "partial",
+      "inputs": ["imagegen_prompts.jsonl", "experiments.jsonl"],
+      "outputs": ["assets/reference_images/video_refs/*.png"],
+      "ready": ["E01_S011"]
+    },
+    {
+      "lane_id": "seedance_execution",
+      "name": "Seedance 视频测试",
+      "status": "pending",
+      "inputs": ["video_prompts.jsonl", "assets/reference_images/video_refs/*.png"],
+      "outputs": ["outputs/clips/*.mp4"],
+      "cost_guard": "render --execute requires real Codex video_refs image unless --allow-placeholder is explicit"
+    },
+    {
+      "lane_id": "audio_design",
+      "name": "音乐和声音设计",
+      "status": "partial",
+      "inputs": ["audio_plan.md", "bgm_prompts.jsonl", "sfx_prompts.jsonl"],
+      "outputs": ["assets/audio/bgm.mp3", "assets/audio/sfx/*.mp3", "outputs/audio/mix_plan.json"]
+    },
+    {
+      "lane_id": "qa_review",
+      "name": "人工审核回写",
+      "status": "pending",
+      "inputs": ["qa_rules.json", "review_checklist.md"],
+      "outputs": ["experiments.jsonl review_result fields"]
+    }
+  ]
+}
+

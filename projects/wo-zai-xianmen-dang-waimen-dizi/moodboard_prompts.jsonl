@@ -1,0 +1,4 @@
+{"experiment_id":"EXP_SCENE_VILLAGE_SQUARE_MOODBOARD","asset_type":"scene_moodboard","target_path":"assets/reference_images/moodboards/village_square.png","prompt":"生成平溪村村口空地 moodboard，写实国风山村，土石空地、低矮屋顶、竹篱、泥墙、远山、村民可站立排队的空间，光线从暖阳逐渐被云舟阴影压暗。不要人物特写，重点是空间、材质、尺度和镜头可拍性。竖屏 9:16，无文字。","negative_prompt":"不要现代建筑，不要过度仙侠化，不要干净影视城感，不要水印。"}
+{"experiment_id":"EXP_SCENE_SKY_BOAT_DECK_MOODBOARD","asset_type":"scene_moodboard","target_path":"assets/reference_images/moodboards/sky_boat_deck.png","prompt":"生成霄怀派云舟甲板 moodboard，银白木质甲板、浅玉栏杆、淡金法纹、云雾从船沿流过、铜镜测灵器放在中央，空间冷而明亮，有宗门秩序感。不要科幻飞船感，不要现代仪器。竖屏 9:16，无文字。","negative_prompt":"不要金属科幻舱，不要现代屏幕，不要过度炫彩。"}
+{"experiment_id":"EXP_LIGHT_PINGXI_TO_SHADOW","asset_type":"lighting_test","target_path":"assets/reference_images/lighting_tests/pingxi_to_shadow.png","prompt":"生成一张三段式光影调性参考：左侧是平溪村院子暖阳日常，中间是云舟阴影压下导致院子变暗，右侧是云舟冷白光洒入村口。保持同一村落材质和写实国风质感，用于指导 E01_S001-E01_S012 的明暗曲线。无文字、无水印。","negative_prompt":"不要现代灯光设备，不要恐怖血腥，不要过度蓝紫。"}
+

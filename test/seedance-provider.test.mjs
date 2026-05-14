@@ -60,3 +60,28 @@ test("submitSeedanceVideoTask sends bearer auth and image-to-video request", asy
   assert.equal(captured.body.content[1].image_url.role, "first_frame");
   assert.match(captured.body.content[1].image_url.url, /^data:image\/png;base64,/);
 });
+
+test("submitSeedanceVideoTask normalizes sub-five-second shot duration to provider duration", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "welopc-seedance-"));
+  const keyframe = path.join(root, "keyframe.png");
+  fs.writeFileSync(keyframe, Buffer.from("png bytes"));
+  let capturedBody;
+  const fetchImpl = async (url, options) => {
+    capturedBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: "task-123", status: "queued" }),
+    };
+  };
+
+  await submitSeedanceVideoTask({
+    prompt: "2.8 秒云舟压境测试",
+    keyframePath: keyframe,
+    durationSec: 2.8,
+    config: createSeedanceConfig({ env: { ARK_API_KEY: "secret-key" } }),
+    fetchImpl,
+  });
+
+  assert.equal(capturedBody.duration, 5);
+});

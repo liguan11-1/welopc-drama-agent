@@ -4,17 +4,25 @@
       "status": "succeeded",
       "provider": "codex_imagegen",
       "output_path": "D:\\Agent\\agent infra\\projects\\wo-zai-xianmen-dang-waimen-dizi\\assets\\reference_images\\video_refs\\E01_S011.png",
-      "updated_at": "2026-05-14T16:57:58.463Z"
+      "updated_at": "2026-05-14T17:26:39.951Z"
     }
   },
   "videos": {
     "E01_S011_video_v01": {
-      "status": "ready_for_seedance",
+      "status": "succeeded",
       "provider": "seedance",
+      "provider_task_id": "cgt-20260515012639-b9r4p",
+      "model": "doubao-seedance-2-0-fast-260128",
       "resolution": "480p",
+      "ratio": "9:16",
+      "provider_duration_sec": 5,
+      "target_duration_sec": 2.8,
       "keyframe_path": "D:\\Agent\\agent infra\\projects\\wo-zai-xianmen-dang-waimen-dizi\\assets\\reference_images\\video_refs\\E01_S011.png",
-      "updated_at": "2026-05-14T16:57:58.465Z"
+      "submitted_at": "2026-05-14T17:26:41.570Z",
+      "updated_at": "2026-05-14T17:28:31.712Z",
+      "output_path": "D:\\Agent\\agent infra\\projects\\wo-zai-xianmen-dang-waimen-dizi\\outputs\\clips\\E01_S011.mp4",
+      "downloaded_at": "2026-05-14T17:28:32.351Z"
     }
   },
-  "updated_at": "2026-05-14T16:57:58.465Z"
+  "updated_at": "2026-05-14T17:28:32.351Z"
 }

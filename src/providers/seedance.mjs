@@ -5,6 +5,7 @@ import { loadLocalEnv } from "../env.mjs";
 
 export const DEFAULT_SEEDANCE_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
 export const DEFAULT_SEEDANCE_MODEL = "doubao-seedance-2-0-fast-260128";
+export const SEEDANCE_IMAGE_TO_VIDEO_DURATION_SEC = 5;
 
 function boolValue(value, fallback = false) {
   if (value === undefined || value === null || value === "") return fallback;
@@ -30,6 +31,10 @@ function imageDataUrl(file) {
   const ext = path.extname(file).toLowerCase();
   const mime = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "image/png";
   return `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
+}
+
+function normalizeImageToVideoDuration() {
+  return SEEDANCE_IMAGE_TO_VIDEO_DURATION_SEC;
 }
 
 export function createSeedanceConfig({ env, cwd = process.cwd() } = {}) {
@@ -75,7 +80,7 @@ export function buildSeedanceRequest({
     content,
     resolution: resolution || config.resolution,
     ratio: ratio || config.ratio,
-    duration: Number(durationSec || 5),
+    duration: normalizeImageToVideoDuration(durationSec),
     generate_audio: generateAudio ?? config.generateAudio,
     watermark: false,
     return_last_frame: true,
@@ -122,6 +127,7 @@ export async function submitSeedanceVideoTask({
     model: request.model,
     resolution: request.resolution,
     ratio: request.ratio,
+    duration: request.duration,
   };
 }
 

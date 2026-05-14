@@ -110,6 +110,8 @@ export async function renderBatch({
         model: result.model,
         resolution: result.resolution,
         ratio: result.ratio,
+        provider_duration_sec: result.duration,
+        target_duration_sec: item.duration_sec,
         keyframe_path: keyframePath,
         submitted_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -172,9 +174,10 @@ export async function refreshSeedanceStatuses({
         const shotId = shotByTaskId.get(taskId) || shotIdFromTaskId(taskId);
         const outputPath = path.join(projectDir, "outputs", "clips", `${shotId}.mp4`);
         await downloadSeedanceFile({ url: videoUrl, outputPath, fetchImpl });
-        record.output_url = videoUrl;
         record.output_path = outputPath;
-        record.last_frame_url = body.content?.last_frame_url || null;
+        record.downloaded_at = new Date().toISOString();
+        delete record.output_url;
+        delete record.last_frame_url;
       }
 
       checked.push({

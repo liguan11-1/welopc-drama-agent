@@ -180,6 +180,9 @@ test("refreshSeedanceStatuses downloads succeeded clips", async () => {
   assert.equal(result.checked.length, 1);
   assert.equal(record.status, "succeeded");
   assert.ok(record.output_path.endsWith(path.join("outputs", "clips", "E01_S001.mp4")));
+  assert.equal(record.output_url, undefined);
+  assert.equal(record.last_frame_url, undefined);
+  assert.equal(JSON.stringify(state).includes("X-Tos-Signature"), false);
   assert.ok(fs.existsSync(record.output_path));
 });
 

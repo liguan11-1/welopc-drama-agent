@@ -1,8 +1,8 @@
-# Xianmen LibTV Workflow Implementation Plan
+# Xianmen Production Board Workflow Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Upgrade the `wo-zai-xianmen-dang-waimen-dizi` short-drama case package with a LibTV-style visual production board and pre-video experiment queue.
+**Goal:** Upgrade the `wo-zai-xianmen-dang-waimen-dizi` short-drama case package with a platform-neutral visual production board and pre-video experiment queue.
 
 **Architecture:** Keep this as a project-data change, not a new CLI feature. The new files live inside the project package and define board lanes, experiment records, image-generation prompt batches, and QA gates that can later be automated by the CLI.
 
@@ -16,9 +16,9 @@
 - Create: `projects/wo-zai-xianmen-dang-waimen-dizi/PRODUCTION_BOARD.md`
 - Create: `projects/wo-zai-xianmen-dang-waimen-dizi/workflow_board.json`
 
-- [x] **Step 1: Capture LibTV case facts**
+- [x] **Step 1: Capture reference board facts**
 
-Record the local reference files, node counts, and the core insight that video generation should follow image/resource experimentation.
+Record the anonymized reference-board counts and the core insight that video generation should follow image/resource experimentation.
 
 - [x] **Step 2: Map board lanes**
 

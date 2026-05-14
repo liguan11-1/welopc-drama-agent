@@ -1,8 +1,8 @@
 {
   "source_case": {
-    "name": "LibTV 金蝉脱壳画布",
-    "local_json": "D:/Agent/agent infra/liblib_project_detail.json",
-    "local_screenshot": "D:/Agent/agent infra/liblib_canvas_current.png",
+    "name": "外部视觉生产画布案例",
+    "local_json": "redacted_external_canvas_project_detail.json",
+    "local_screenshot": "redacted_external_canvas_current.png",
     "node_count": 942,
     "connection_count": 224,
     "image_resource_count": 662,
@@ -94,4 +94,3 @@
     }
   ]
 }
-

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { composeProject, planCompose } from "../src/compose.mjs";
+import { composeMidboard, composeProject, planCompose, planMidboard } from "../src/compose.mjs";
 import { createProjectFromTopic } from "../src/project-generator.mjs";
 import { writeJson, writeJsonl } from "../src/files.mjs";
 
@@ -92,13 +92,14 @@ test("compose plan includes BGM and local SFX tracks from sound mix plan", async
   fs.writeFileSync(sfxFile, Buffer.from("sfx"));
   writeJson(path.join(projectDir, "outputs", "audio", "mix_plan.json"), {
     voice_tracks: [],
-    bgm_tracks: [{ asset_id: "main_bgm", asset_path: bgmFile, start_sec: 0, volume: 0.55 }],
-    sfx_tracks: [{ cue_id: "E01_S002_task_badge", asset_path: sfxFile, start_sec: 5, volume: 0.9 }],
+    bgm_tracks: [{ asset_id: "main_bgm", asset_path: "assets/audio/bgm.mp3", start_sec: 0, volume: 0.55 }],
+    sfx_tracks: [{ cue_id: "E01_S002_task_badge", asset_path: "assets/audio/sfx/E01_S002_task_badge.mp3", start_sec: 5, volume: 0.9 }],
   });
 
   const result = composeProject({ projectDir, execute: false });
 
   assert.equal(result.audio_tracks.length, 2);
+  assert.equal(result.audio_tracks.find((track) => track.kind === "bgm").input_path, bgmFile);
   assert.equal(result.audio_tracks.find((track) => track.kind === "sfx").delay_ms, 5000);
   assert.match(result.command.join(" "), /amix=inputs=2/);
   assert.match(result.command.join(" "), /volume=0.55/);
@@ -178,4 +179,74 @@ test("compose trims generated clips to target shot durations and ignores provide
   assert.match(command, / -an /);
   assert.doesNotMatch(command, /-c copy/);
   assert.doesNotMatch(command, /0:a/);
+});
+
+test("midboard compose uses packed clips, trims provider output, and keeps subtitles in range", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "packed midboard", outDir: projectDir });
+  writeJsonl(path.join(projectDir, "video_node_packing_plan.jsonl"), [
+    {
+      pack_id: "E01_PACK_001",
+      provider_duration_sec: 5,
+      target_duration_sec: 4.9,
+      shot_ids: ["E01_S001", "E01_S002", "E01_S003"],
+    },
+    {
+      pack_id: "E01_PACK_002",
+      provider_duration_sec: 5,
+      target_duration_sec: 3.5,
+      shot_ids: ["E01_S004", "E01_S005"],
+    },
+  ]);
+  const clipsDir = path.join(projectDir, "outputs", "clips");
+  fs.mkdirSync(clipsDir, { recursive: true });
+  const packOne = path.join(clipsDir, "E01_PACK_001.mp4");
+  const packTwo = path.join(clipsDir, "E01_PACK_002.mp4");
+  fs.writeFileSync(packOne, Buffer.from("pack-one"));
+  fs.writeFileSync(packTwo, Buffer.from("pack-two"));
+  writeJson(path.join(projectDir, "render_state.json"), {
+    videos: {
+      E01_PACK_001_video_v01: {
+        status: "succeeded",
+        output_kind: "packed_video_node",
+        pack_id: "E01_PACK_001",
+        output_path: packOne,
+        provider_duration_sec: 5,
+        target_duration_sec: 4.9,
+      },
+      E01_PACK_002_video_v01: {
+        status: "succeeded",
+        output_kind: "packed_video_node",
+        pack_id: "E01_PACK_002",
+        output_path: packTwo,
+        provider_duration_sec: 5,
+        target_duration_sec: 3.5,
+      },
+    },
+  });
+  writeJsonl(path.join(projectDir, "subtitle_timeline.jsonl"), [
+    { subtitle_id: "in_range", start_sec: 1, end_sec: 2, text: "inside" },
+    { subtitle_id: "out_of_range", start_sec: 9, end_sec: 10, text: "outside" },
+  ]);
+
+  const result = composeMidboard({
+    projectDir,
+    packIds: ["E01_PACK_001", "E01_PACK_002"],
+    execute: false,
+  });
+  const subtitleBody = fs.readFileSync(result.subtitle_file, "utf8");
+  const command = result.command.join(" ");
+
+  assert.equal(result.dry_run, true);
+  assert.ok(result.output_path.endsWith(path.join("outputs", "final", "midboard.mp4")));
+  assert.equal(result.clip_plan.length, 2);
+  assert.equal(result.clip_plan[0].pack_id, "E01_PACK_001");
+  assert.equal(result.duration_sec, 8.4);
+  assert.match(command, /trim=duration=4\.9/);
+  assert.match(command, /concat=n=2:v=1:a=0/);
+  assert.match(subtitleBody, /inside/);
+  assert.doesNotMatch(subtitleBody, /outside/);
+
+  const plan = planMidboard({ projectDir, packIds: ["E01_PACK_001"] });
+  assert.equal(plan.duration_sec, 4.9);
 });

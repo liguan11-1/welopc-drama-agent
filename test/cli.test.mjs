@@ -14,4 +14,6 @@ test("CLI prints Chinese help", () => {
   assert.match(result.stdout, / images --project/);
   assert.match(result.stdout, / preflight --project/);
   assert.match(result.stdout, / sound --project/);
+  assert.match(result.stdout, / render-packed --project/);
+  assert.match(result.stdout, / compose-midboard --project/);
 });

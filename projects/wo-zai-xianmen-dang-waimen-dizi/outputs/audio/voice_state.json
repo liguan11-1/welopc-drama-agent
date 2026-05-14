@@ -1,0 +1,36 @@
+{
+  "provider": "local_edge_tts",
+  "voices": {
+    "E01_S006_voice_v01": {
+      "status": "succeeded",
+      "provider": "local_edge_tts",
+      "shot_id": "E01_S006",
+      "character_id": "village_child",
+      "voice_type": "village_child",
+      "text": "又看天。",
+      "output_path": "assets/audio/voice/E01_S006.mp3",
+      "updated_at": "2026-05-14T19:39:50.678Z"
+    },
+    "E01_S007_voice_v01": {
+      "status": "succeeded",
+      "provider": "local_edge_tts",
+      "shot_id": "E01_S007",
+      "character_id": "lin_xi",
+      "voice_type": "lin_xi",
+      "text": "会不会真有仙门？",
+      "output_path": "assets/audio/voice/E01_S007.mp3",
+      "updated_at": "2026-05-14T19:39:50.678Z"
+    },
+    "E01_S008_voice_v01": {
+      "status": "succeeded",
+      "provider": "local_edge_tts",
+      "shot_id": "E01_S008",
+      "character_id": "wen_gengran",
+      "voice_type": "wen_gengran",
+      "text": "水开了，先看锅。",
+      "output_path": "assets/audio/voice/E01_S008.mp3",
+      "updated_at": "2026-05-14T19:39:50.678Z"
+    }
+  },
+  "updated_at": "2026-05-14T19:39:50.676Z"
+}

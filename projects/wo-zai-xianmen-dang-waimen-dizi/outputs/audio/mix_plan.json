@@ -1,37 +1,57 @@
 {
-  "strategy": "bgm_sfx_voice_optional",
-  "voice_tracks": [],
+  "strategy": "post_audio_only_ignore_provider_audio",
   "bgm_tracks": [
     {
-      "asset_id": "main_bgm",
-      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/bgm.mp3",
+      "asset_id": "main_bgm_midboard",
+      "asset_path": "assets/audio/bgm.mp3",
       "start_sec": 0,
-      "volume": 0.45,
-      "optional": true
+      "volume": 0.34
     }
   ],
   "sfx_tracks": [
     {
-      "asset_id": "E01_S008_kettle_scream",
-      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S008_kettle_scream.mp3",
-      "start_sec": 19.7,
-      "volume": 0.8,
-      "optional": true
+      "cue_id": "charcoal_scratch",
+      "asset_path": "assets/audio/sfx/charcoal_scratch.wav",
+      "start_sec": 1.55,
+      "volume": 0.42
     },
     {
-      "asset_id": "E01_S011_cloud_boat_descent",
-      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S011_cloud_boat_descent.mp3",
-      "start_sec": 28.5,
-      "volume": 0.85,
-      "optional": true
+      "cue_id": "bamboo_tap",
+      "asset_path": "assets/audio/sfx/bamboo_tap.wav",
+      "start_sec": 3.25,
+      "volume": 0.36
     },
     {
-      "asset_id": "E01_S022_spirit_mirror_three_notes",
-      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S022_spirit_mirror_three_notes.mp3",
-      "start_sec": 67.5,
-      "volume": 0.75,
-      "optional": true
+      "cue_id": "pouch_rustle",
+      "asset_path": "assets/audio/sfx/pouch_rustle.wav",
+      "start_sec": 4.95,
+      "volume": 0.34
+    },
+    {
+      "cue_id": "stove_fire",
+      "asset_path": "assets/audio/sfx/stove_fire.wav",
+      "start_sec": 6.45,
+      "volume": 0.22
+    },
+    {
+      "cue_id": "kettle_steam",
+      "asset_path": "assets/audio/sfx/kettle_steam.wav",
+      "start_sec": 13.55,
+      "volume": 0.5
+    },
+    {
+      "cue_id": "pupil_hit",
+      "asset_path": "assets/audio/sfx/pupil_hit.wav",
+      "start_sec": 16,
+      "volume": 0.58
+    },
+    {
+      "cue_id": "cloud_boat_rumble",
+      "asset_path": "assets/audio/sfx/cloud_boat_rumble.wav",
+      "start_sec": 17.45,
+      "volume": 0.62
     }
-  ]
+  ],
+  "voice_tracks": [],
+  "notes": "Midboard mix: video model audio is ignored; dialogue, BGM and SFX are layered in compose."
 }
-

@@ -33,6 +33,18 @@ function imageDataUrl(file) {
   return `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
 }
 
+function orderedUniqueFiles(files) {
+  const seen = new Set();
+  const result = [];
+  for (const file of files.filter(Boolean)) {
+    const resolved = path.resolve(file);
+    if (seen.has(resolved)) continue;
+    seen.add(resolved);
+    result.push(file);
+  }
+  return result;
+}
+
 function normalizeImageToVideoDuration() {
   return SEEDANCE_IMAGE_TO_VIDEO_DURATION_SEC;
 }
@@ -57,6 +69,7 @@ export function createSeedanceConfig({ env, cwd = process.cwd() } = {}) {
 export function buildSeedanceRequest({
   prompt,
   keyframePath,
+  referenceImagePaths = [],
   durationSec = 5,
   config,
   model,
@@ -65,12 +78,14 @@ export function buildSeedanceRequest({
   generateAudio,
 }) {
   const content = [{ type: "text", text: prompt }];
-  if (keyframePath) {
+  const imagePaths = orderedUniqueFiles([keyframePath, ...referenceImagePaths]);
+  const useReferenceMode = imagePaths.length > 1;
+  for (const imagePath of imagePaths) {
     content.push({
       type: "image_url",
+      role: useReferenceMode ? "reference_image" : "first_frame",
       image_url: {
-        url: imageDataUrl(keyframePath),
-        role: "first_frame",
+        url: imageDataUrl(imagePath),
       },
     });
   }
@@ -90,6 +105,7 @@ export function buildSeedanceRequest({
 export async function submitSeedanceVideoTask({
   prompt,
   keyframePath,
+  referenceImagePaths = [],
   durationSec = 5,
   model,
   resolution,
@@ -104,6 +120,7 @@ export async function submitSeedanceVideoTask({
   const request = buildSeedanceRequest({
     prompt,
     keyframePath,
+    referenceImagePaths,
     durationSec,
     config: resolvedConfig,
     model,

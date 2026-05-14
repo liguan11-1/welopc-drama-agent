@@ -57,7 +57,7 @@ test("submitSeedanceVideoTask sends bearer auth and image-to-video request", asy
   assert.equal(captured.body.duration, 5);
   assert.equal(captured.body.generate_audio, false);
   assert.equal(captured.body.content[0].type, "text");
-  assert.equal(captured.body.content[1].image_url.role, "first_frame");
+  assert.equal(captured.body.content[1].role, "first_frame");
   assert.match(captured.body.content[1].image_url.url, /^data:image\/png;base64,/);
 });
 
@@ -84,4 +84,42 @@ test("submitSeedanceVideoTask normalizes sub-five-second shot duration to provid
   });
 
   assert.equal(capturedBody.duration, 5);
+});
+
+test("submitSeedanceVideoTask can send ordered multi-image references", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "welopc-seedance-"));
+  const firstFrame = path.join(root, "first.png");
+  const secondFrame = path.join(root, "second.png");
+  const thirdFrame = path.join(root, "third.png");
+  fs.writeFileSync(firstFrame, Buffer.from("first png bytes"));
+  fs.writeFileSync(secondFrame, Buffer.from("second png bytes"));
+  fs.writeFileSync(thirdFrame, Buffer.from("third png bytes"));
+  let capturedBody;
+  const fetchImpl = async (url, options) => {
+    capturedBody = JSON.parse(options.body);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: "task-packed-1", status: "queued" }),
+    };
+  };
+
+  const result = await submitSeedanceVideoTask({
+    prompt: "Use the three images as ordered visual beats.",
+    keyframePath: firstFrame,
+    referenceImagePaths: [firstFrame, secondFrame, thirdFrame],
+    durationSec: 4.2,
+    config: createSeedanceConfig({ env: { ARK_API_KEY: "secret-key" } }),
+    fetchImpl,
+  });
+
+  const images = capturedBody.content.filter((item) => item.type === "image_url");
+  assert.equal(result.provider_task_id, "task-packed-1");
+  assert.equal(images.length, 3);
+  assert.deepEqual(images.map((item) => item.role), [
+    "reference_image",
+    "reference_image",
+    "reference_image",
+  ]);
+  assert.match(images[0].image_url.url, /^data:image\/png;base64,/);
 });

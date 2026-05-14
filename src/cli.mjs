@@ -1,11 +1,11 @@
 import path from "node:path";
 import { approveProject } from "./approval.mjs";
 import { importManualBgm } from "./audio.mjs";
-import { composeProject } from "./compose.mjs";
+import { composeMidboard, composeProject } from "./compose.mjs";
 import { writeImageReferencePackage } from "./imagegen-assets.mjs";
 import { createProjectFromScript, createProjectFromTopic } from "./project-generator.mjs";
 import { preflightProject } from "./preflight.mjs";
-import { refreshSeedanceStatuses, renderBatch } from "./render-state.mjs";
+import { refreshSeedanceStatuses, renderBatch, renderPackedBatch } from "./render-state.mjs";
 import { writeSoundDesignPackage } from "./sound-design.mjs";
 import { refreshVoiceStatuses, submitVoiceBatch } from "./voice.mjs";
 import { renderWebWorkspace } from "./web-workspace.mjs";
@@ -19,12 +19,15 @@ const HELP = `welopc 短剧 agent
   welopc-drama-agent images --project ./projects/baigujing
   welopc-drama-agent preflight --project ./projects/baigujing
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --resolution 480p --execute
+  welopc-drama-agent render-packed --project ./projects/baigujing --batch 5 --resolution 480p --execute
+  welopc-drama-agent render-packed --project ./projects/baigujing --batch 5 --reference-dir assets/reference_images/video_refs_seedance_safe --execute
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --execute --allow-placeholder
   welopc-drama-agent status --project ./projects/baigujing --poll
   welopc-drama-agent sound --project ./projects/baigujing
   welopc-drama-agent web --project ./projects/baigujing
   welopc-drama-agent bgm --project ./projects/baigujing --provider manual --file ./bgm.mp3
   welopc-drama-agent compose --project ./projects/baigujing
+  welopc-drama-agent compose-midboard --project ./projects/baigujing --packs E01_PACK_001,E01_PACK_002 --execute
 
 WelOPC 别名：
   welopc drama new --topic "..."
@@ -111,6 +114,18 @@ export async function runCli(argv) {
     return;
   }
 
+  if (command === "render-packed") {
+    printJson(await renderPackedBatch({
+      projectDir: projectArg(args),
+      batch: Number(args.batch || 3),
+      resolution: args.resolution || "480p",
+      referenceDir: args["reference-dir"],
+      force: Boolean(args.force),
+      execute: Boolean(args.execute),
+    }));
+    return;
+  }
+
   if (command === "status") {
     printJson(await refreshSeedanceStatuses({
       projectDir: projectArg(args),
@@ -160,6 +175,16 @@ export async function runCli(argv) {
 
   if (command === "compose") {
     printJson(composeProject({ projectDir: projectArg(args), execute: Boolean(args.execute) }));
+    return;
+  }
+
+  if (command === "compose-midboard") {
+    const packIds = args.packs ? String(args.packs).split(",").map((item) => item.trim()).filter(Boolean) : undefined;
+    printJson(composeMidboard({
+      projectDir: projectArg(args),
+      packIds,
+      execute: Boolean(args.execute),
+    }));
     return;
   }
 

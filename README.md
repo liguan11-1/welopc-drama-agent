@@ -52,13 +52,58 @@ node .\bin\welopc-drama-agent.js approve --project .\projects\baigujing
 
 ## 准备渲染批次
 
-当前版本不会直接调用付费视频 API。`render` 会生成本地分镜关键帧占位图，并更新 `render_state.json`，把镜头标记为等待后续 Seedance 适配器提交。
+默认情况下，`render` 只生成本地分镜关键帧占位图，并更新 `render_state.json`，把镜头标记为等待 Seedance 提交。
 
 ```powershell
 node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 3 --resolution 480p
 ```
 
 建议首轮内部测试使用 `480p` 和 `--batch 3`，先验证风格和运镜，再扩大批次或提高分辨率。
+
+## 配置 Seedance Key
+
+复制 `.env.example` 为 `.env.local`，只在本地填写真实 key：
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+至少需要：
+
+```dotenv
+ARK_API_KEY=你的火山方舟 API Key
+ARK_VIDEO_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
+ARK_VIDEO_MODEL=doubao-seedance-2-0-fast-260128
+VIDEO_RESOLUTION=480p
+VIDEO_RATIO=9:16
+VIDEO_GENERATE_AUDIO=false
+```
+
+`.env.local` 已被 `.gitignore` 忽略，不会提交到仓库。
+
+## 提交 Seedance 视频任务
+
+只有显式传入 `--execute` 才会提交真实 Seedance 任务并消耗额度。建议第一条先跑一镜：
+
+```powershell
+node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 1 --resolution 480p --execute
+```
+
+提交成功后，`render_state.json` 会记录 `provider_task_id`，不会记录 API key。
+
+查询和下载完成的视频片段：
+
+```powershell
+node .\bin\welopc-drama-agent.js status --project .\projects\baigujing --poll
+```
+
+`--poll` 默认最多轮询 60 次，每 20 秒一次。需要更短试跑时可以加：
+
+```powershell
+node .\bin\welopc-drama-agent.js status --project .\projects\baigujing --poll --poll-attempts 3 --poll-interval-sec 10
+```
+
+完成片段会写入 `outputs/clips/`，并回填到 `render_state.json`。
 
 ## 生成 Web 预览页
 
@@ -100,5 +145,5 @@ npm test
 
 ## 当前边界
 
-- 已完成：CLI 项目生成、审批门禁、本地分镜关键帧准备、静态 Web 预览、本地 BGM 导入、合成计划。
-- 未完成：真实 Seedance 提交、任务轮询、视频下载、BGM API、完整 Web 控制台、WelOPC 场景包安装入口。
+- 已完成：CLI 项目生成、审批门禁、本地分镜关键帧准备、Seedance 任务提交、状态查询与视频下载、静态 Web 预览、本地 BGM 导入、合成计划。
+- 未完成：更细的失败重试策略、BGM API、完整 Web 控制台、WelOPC 场景包安装入口。

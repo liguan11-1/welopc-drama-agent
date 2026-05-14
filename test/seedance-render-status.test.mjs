@@ -69,6 +69,39 @@ test("render --execute refuses paid video submission when Codex video reference 
   assert.equal(calledProvider, false);
 });
 
+test("render --execute refuses local dry-run placeholder keyframes unless explicitly allowed", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "placeholder cost guard", outDir: projectDir });
+  approveProject(projectDir);
+
+  await renderBatch({ projectDir, batch: 1, resolution: "480p" });
+  assert.ok(fs.existsSync(path.join(projectDir, "assets", "keyframes", "E01_S001.png")));
+
+  let calledProvider = false;
+  const fetchImpl = async () => {
+    calledProvider = true;
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ id: "seedance-task-1", status: "queued" }),
+    };
+  };
+
+  await assert.rejects(
+    () => renderBatch({
+      projectDir,
+      batch: 1,
+      resolution: "480p",
+      execute: true,
+      force: true,
+      env: { ARK_API_KEY: "secret-key" },
+      fetchImpl,
+    }),
+    /Codex video reference image is required/,
+  );
+  assert.equal(calledProvider, false);
+});
+
 test("render --execute uses Codex video reference image when available", async () => {
   const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
   await createProjectFromTopic({ topic: "白骨精不想再演反派了", outDir: projectDir });

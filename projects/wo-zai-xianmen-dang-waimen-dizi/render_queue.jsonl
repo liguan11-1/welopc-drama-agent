@@ -1,0 +1,6 @@
+{"task_id":"E01_S011_reference_image","task_type":"image_reference_generate","provider":"codex_imagegen","model":"codex-built-in-imagegen","dependencies":[],"priority":1,"status":"done"}
+{"task_id":"E01_S001_to_E01_S010_reference_images","task_type":"image_reference_generate","provider":"codex_imagegen","model":"codex-built-in-imagegen","dependencies":["lin_xi","wen_gengran","pingxi_courtyard"],"priority":2,"status":"pending"}
+{"task_id":"E01_S012_to_E01_S022_reference_images","task_type":"image_reference_generate","provider":"codex_imagegen","model":"codex-built-in-imagegen","dependencies":["lin_xi","wen_gengran","sky_boat_arrival"],"priority":3,"status":"pending"}
+{"task_id":"E01_S011_video_v01","task_type":"image_to_video","provider":"seedance","model":"doubao-seedance-2-0-fast-260128","dependencies":["E01_S011_video_reference_frame"],"priority":10,"poll_interval_sec":120,"on_success":"download_result_and_continue","on_fail":"retry_once_then_manual_review"}
+{"task_id":"E01_batch_01_videos","task_type":"image_to_video_batch","provider":"seedance","model":"doubao-seedance-2-0-fast-260128","dependencies":["E01_S001_video_reference_frame","E01_S002_video_reference_frame","E01_S003_video_reference_frame"],"priority":20,"poll_interval_sec":120,"on_success":"download_result_and_continue","on_fail":"pause_for_manual_review"}
+

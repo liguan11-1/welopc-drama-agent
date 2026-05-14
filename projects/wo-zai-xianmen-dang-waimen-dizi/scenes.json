@@ -1,0 +1,28 @@
+[
+  {
+    "scene_id": "pingxi_sky",
+    "name": "平溪村上空",
+    "visual": "山村上方的蓝天、白云、远山和屋檐，先平静后出现巨大阴影。"
+  },
+  {
+    "scene_id": "pingxi_courtyard",
+    "name": "安然堂院子",
+    "visual": "泥墙院落、药草架、老灶、水壶、木摇椅、茶壶、药罐，阳光从树叶间落下。"
+  },
+  {
+    "scene_id": "village_square",
+    "name": "平溪村空地",
+    "visual": "村民聚集的土石空地，低矮屋顶、竹篱、孩子排队，远处能看到云舟压下来的阴影。"
+  },
+  {
+    "scene_id": "sky_boat_arrival",
+    "name": "云舟压境",
+    "visual": "巨大银白木质云舟从高空降下，水波结界包裹船体，浅玉和淡金纹样，村民仰望。"
+  },
+  {
+    "scene_id": "sky_boat_deck",
+    "name": "云舟甲板",
+    "visual": "银白甲板、铜镜测灵器、云雾从船沿流过，光线冷而明亮。"
+  }
+]
+

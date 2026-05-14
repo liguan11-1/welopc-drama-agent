@@ -1,0 +1,17 @@
+{
+  "provider": "codex_imagegen",
+  "mode": "built_in_tool",
+  "purpose": "用 Codex 内置 imagegen 生成人物、镜头、分镜和视频首帧参考图",
+  "prompt_file": "imagegen_prompts.jsonl",
+  "reference_root": "assets\\reference_images",
+  "required_before_paid_video": [
+    "assets\\reference_images\\video_refs\\<shot_id>.png"
+  ],
+  "counts": {
+    "characters": 4,
+    "cameras": 22,
+    "storyboards": 22,
+    "video_reference_frames": 22,
+    "total": 70
+  }
+}

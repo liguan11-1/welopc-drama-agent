@@ -1,0 +1,37 @@
+{
+  "strategy": "bgm_sfx_voice_optional",
+  "voice_tracks": [],
+  "bgm_tracks": [
+    {
+      "asset_id": "main_bgm",
+      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/bgm.mp3",
+      "start_sec": 0,
+      "volume": 0.45,
+      "optional": true
+    }
+  ],
+  "sfx_tracks": [
+    {
+      "asset_id": "E01_S008_kettle_scream",
+      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S008_kettle_scream.mp3",
+      "start_sec": 19.7,
+      "volume": 0.8,
+      "optional": true
+    },
+    {
+      "asset_id": "E01_S011_cloud_boat_descent",
+      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S011_cloud_boat_descent.mp3",
+      "start_sec": 28.5,
+      "volume": 0.85,
+      "optional": true
+    },
+    {
+      "asset_id": "E01_S022_spirit_mirror_three_notes",
+      "asset_path": "projects/wo-zai-xianmen-dang-waimen-dizi/assets/audio/sfx/E01_S022_spirit_mirror_three_notes.mp3",
+      "start_sec": 67.5,
+      "volume": 0.75,
+      "optional": true
+    }
+  ]
+}
+

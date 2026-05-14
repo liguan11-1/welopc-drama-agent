@@ -38,6 +38,9 @@ function resolveKeyframeForShot(projectDir, shotId, state, { execute = false, al
   const referenceImage = resolveShotReferenceImage(projectDir, shotId);
   if (referenceImage) {
     const isCodexReference = referenceImage.includes(path.join("assets", "reference_images", "video_refs"));
+    if (execute && !allowPlaceholder && !isCodexReference) {
+      throw new Error(`Codex video reference image is required before paid Seedance submission for ${shotId}: ${expectedVideoReferencePath(projectDir, shotId)}. Run "welopc-drama-agent images --project <project>" and generate/save the video_reference_frame first, or pass --allow-placeholder for an intentional low-quality test.`);
+    }
     const assetId = isCodexReference ? videoReferenceAssetId(shotId) : `${shotId}_keyframe`;
     state.images[assetId] = {
       status: "succeeded",

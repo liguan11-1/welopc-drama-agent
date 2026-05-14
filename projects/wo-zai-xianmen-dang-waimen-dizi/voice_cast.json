@@ -1,0 +1,33 @@
+{
+  "strategy": "subtitle_first_optional_voice",
+  "default_language": "zh-CN",
+  "tracks": [
+    {
+      "character_id": "lin_xi",
+      "line_count": 1,
+      "delivery": "童声，轻声，好奇中带紧张",
+      "priority": 2,
+      "tts_optional": true
+    },
+    {
+      "character_id": "wen_gengran",
+      "line_count": 3,
+      "delivery": "老年男声，低、慢、克制，像知道真相但不解释",
+      "priority": 1,
+      "tts_optional": true
+    },
+    {
+      "character_id": "xiao_huai_envoy",
+      "line_count": 1,
+      "delivery": "年轻女声，清冷平直，流程化",
+      "priority": 3,
+      "tts_optional": true
+    }
+  ],
+  "asset_paths": {
+    "lin_xi": "assets/audio/voice/lin_xi/",
+    "wen_gengran": "assets/audio/voice/wen_gengran/",
+    "xiao_huai_envoy": "assets/audio/voice/xiao_huai_envoy/"
+  }
+}
+

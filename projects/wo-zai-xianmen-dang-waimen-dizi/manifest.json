@@ -1,0 +1,19 @@
+{
+  "project_id": "xianmen_outer_disciple_s1",
+  "title": "我在仙门当外门弟子",
+  "source_title": "摸鱼日记4.27",
+  "topic": "村中孤女林溪被霄怀派云舟带走，从外门弟子成长并卷入宗门虫化悬疑。",
+  "input_mode": "novel_docx",
+  "format": "short_drama",
+  "season": 1,
+  "episode": 1,
+  "episode_title": "云舟来村",
+  "duration_sec": 70,
+  "ratio": "9:16",
+  "status": "visual_development",
+  "current_phase": "reference_images_and_audio_design",
+  "video_model_hint": "doubao-seedance-2-0-fast-260128",
+  "image_provider": "codex_imagegen",
+  "created_at": "2026-05-14T00:00:00+08:00"
+}
+

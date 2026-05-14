@@ -1,19 +1,24 @@
 {
   "review_scale": {
-    "pass": "可以进入下一阶段，若是 video_reference_frame 可用于 Seedance 付费任务。",
-    "revise": "方向可用，但需要局部修改或重生成。",
-    "reject": "不要进入视频生成，记录失败原因后重跑。"
+    "pass": "可以进入下一阶段；如果是 video_reference_frame，可进入视频节点打包或 Seedance 付费任务。",
+    "revise": "方向可用，但需要局部修改、重生成或补参考图。",
+    "reject": "不要进入视频生成；记录失败原因后重新跑图。"
   },
   "tags": {
     "face_drift": "人物脸、年龄、五官或气质发生明显漂移。",
-    "costume_drift": "林溪双辫、补丁衣、蓝腰带、小布袋、草鞋，或温庚然灰袍灰须等关键识别点丢失。",
+    "costume_drift": "林溪双辫、补丁衣、蓝腰带、小布袋、草鞋，或温庚然灰发灰须、旧灰袍等关键识别点丢失。",
     "scene_drift": "场景偏离平溪村、安然堂、村口或云舟甲板设定。",
     "too_scifi": "云舟、甲板或法器看起来像现代科幻飞船。",
     "over_fantasy": "村落前半段过度仙侠化，削弱日常和离乡感。",
     "bad_hands": "手、脚、拂尘、草鞋、竹筒等局部变形。",
     "motion_overload": "单张首帧承载动作太多，Seedance 容易生成混乱。",
     "lighting_mismatch": "人物和场景光源、色温或阴影方向不一致。",
-    "usable_for_seedance": "构图稳定、人物一致、动作清晰，可作为图生视频首帧。"
+    "usable_for_seedance": "构图稳定、人物一致、动作清晰，可作为图生视频参考帧。",
+    "pack_duration_overflow": "打包节点目标时长超过 5 秒，或内部视觉节拍时间不连续。",
+    "missing_beat_reference": "打包节点里某个 visual beat 没有对应 image_ref 或参考图未通过审核。",
+    "beat_transition_unclear": "一个 5 秒节点内的分镜转场不清楚，模型可能把两个镜头混成一个动作。",
+    "model_audio_leak": "最终混音直接使用了视频模型源音轨。",
+    "model_sfx_reference_only": "模型音效只作参考，最终 SFX 必须来自后期音轨。"
   },
   "required_checks_before_seedance": [
     "face_drift must be false",
@@ -22,10 +27,43 @@
     "motion_overload must be false",
     "usable_for_seedance must be true"
   ],
+  "video_node_packing": {
+    "plan_file": "video_node_packing_plan.jsonl",
+    "provider_duration_sec": 5,
+    "hard_max_target_duration_sec": 5.0,
+    "preferred_max_target_duration_sec": 4.8,
+    "reference_frame_policy": "每个 visual_beats[] 都必须有自己的 image_ref；适配器支持多图时必须传入 reference_frames[] 全量图片。",
+    "adapter_fallback_policy": "如果当前视频模型适配器只能传单张首帧，必须把其他节拍图写入请求元数据和 prompt，并在执行日志标记为 multi_image_input_degraded。",
+    "required_checks_before_paid_pack": [
+      "target_duration_sec <= 5.0",
+      "visual_beats time windows are continuous",
+      "every visual beat has approved image_ref",
+      "reference_frames length equals visual_beats length",
+      "sound_policy == model_sfx_reference_only_final_audio_from_post_layers",
+      "source video audio is ignored in compose",
+      "qa approval status is current"
+    ],
+    "cost_estimate": {
+      "model": "doubao-seedance-2-0-fast-260128",
+      "resolution": "480p",
+      "price_snapshot_per_5s_rmb": 1.86,
+      "separate_37_shots_estimate_rmb": 68.82,
+      "packed_17_nodes_estimate_rmb": 31.62,
+      "already_generated_test_clip_estimate_rmb": 1.86,
+      "billing_note": "真实费用以火山方舟账单为准。"
+    }
+  },
+  "audio_policy": {
+    "video_model_sound_generation": "allowed_as_reference",
+    "source_audio_in_final_mix": "forbidden",
+    "final_audio_layers": ["voice", "sfx", "ambience", "bgm"],
+    "model_sfx_reuse_rule": "模型音效只能转写成后期 SFX cue，不能直接混入最终 MP4。"
+  },
   "first_paid_test": {
     "shot_id": "E01_S011",
-    "reason": "已有真实 Codex 云舟首帧，且是第一集奇观镜头，最适合低成本验证 Seedance 首帧延展能力。",
-    "command": "node .\\bin\\welopc-drama-agent.js render --project .\\projects\\wo-zai-xianmen-dang-waimen-dizi --batch 1 --resolution 480p --execute"
+    "status": "succeeded",
+    "local_output": "outputs/clips/E01_S011.mp4",
+    "reason": "已有真实 Codex 云舟首帧，且是第一集奇观镜头，适合低成本验证 Seedance 首帧延展能力。",
+    "estimated_cost_rmb": 1.86
   }
 }
-

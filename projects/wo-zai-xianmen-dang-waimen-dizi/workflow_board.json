@@ -1,11 +1,7 @@
 {
   "production_rules": {
     "asset_pool_before_paid_video": true,
-    "long_video_node_strategy": {
-      "node_duration_sec": "10-15",
-      "internal_visual_beats": "10-18",
-      "effective_visual_beat_sec": "0.8-1.5"
-    },
+    "qa_required_before_seedance": true,
     "episode_pacing": {
       "episode_id": "E01",
       "duration_sec": 70,
@@ -13,6 +9,16 @@
       "average_shot_sec": 1.89,
       "max_single_shot_sec": 2.8,
       "first_paid_test_shot": "E01_S011"
+    },
+    "video_node_packing_strategy": {
+      "enabled": true,
+      "plan_file": "video_node_packing_plan.jsonl",
+      "provider_duration_sec": 5,
+      "current_pack_count": 17,
+      "source_shot_count": 37,
+      "rule": "连续短镜头先打包为 5 秒以内视频节点，每个 visual beat 必须有对应参考图，再提交付费视频。",
+      "cost_guard": "不要按 37 个短分镜逐条提交 Seedance；先按打包节点和静态镜头策略压缩任务数。",
+      "adapter_requirement": "支持多图时传入 reference_frames[]；只支持首帧时必须记录降级，并把所有节拍图写入 prompt 元数据。"
     },
     "subtitle_strategy": {
       "dialogue_source": "shots.jsonl dialogue_or_caption",
@@ -22,11 +28,12 @@
     },
     "audio_layer_strategy": {
       "video_source_audio": "ignored",
+      "video_model_sfx": "allowed_as_reference_only",
+      "final_audio_source": "post_layers_only",
       "seedance_provider_duration_sec": 5,
-      "final_clip_duration_source": "shots.jsonl duration_sec",
+      "final_clip_duration_source": "shots.jsonl duration_sec or video_node_packing_plan visual_beats",
       "mix_priority": ["voice", "sfx", "ambience", "bgm"]
-    },
-    "qa_required_before_seedance": true
+    }
   },
   "project": {
     "project_id": "xianmen_outer_disciple_s1",
@@ -42,7 +49,15 @@
       "status": "done",
       "inputs": ["story_bible.md"],
       "outputs": ["shots.jsonl", "voiceover_script.md", "subtitle_timeline.jsonl"],
-      "notes": "E01 已升级为 37 镜短切版本，并补 6 条非对白信息字幕。"
+      "notes": "E01 已升级为 70 秒 37 镜短切版本，并补 6 条非对白信息字幕。"
+    },
+    {
+      "lane_id": "video_node_packing",
+      "name": "5秒视频节点打包",
+      "status": "drafted",
+      "inputs": ["shots.jsonl", "qa_rules.json"],
+      "outputs": ["video_node_packing_plan.jsonl", "video_node_packing_rules.md"],
+      "notes": "37 个短分镜已拆成 17 个候选付费视频节点；每个节点需要补齐 visual_beats 对应参考图后才能提交。"
     },
     {
       "lane_id": "character_consistency",
@@ -82,33 +97,36 @@
     },
     {
       "lane_id": "video_reference_frames",
-      "name": "视频首帧",
+      "name": "视频参考图",
       "status": "partial",
-      "inputs": ["imagegen_prompts.jsonl", "experiments.jsonl"],
+      "inputs": ["imagegen_prompts.jsonl", "experiments.jsonl", "video_node_packing_plan.jsonl"],
       "outputs": ["assets/reference_images/video_refs/*.png"],
-      "ready": ["E01_S011"]
+      "ready": ["E01_S011"],
+      "rule": "不要只为单镜头出图；按 video_node_packing_plan 的 visual_beats 补图。"
     },
     {
       "lane_id": "seedance_execution",
-      "name": "Seedance 视频测试",
-      "status": "pending",
-      "inputs": ["video_prompts.jsonl", "assets/reference_images/video_refs/*.png"],
+      "name": "Seedance 视频执行",
+      "status": "partial",
+      "inputs": ["video_node_packing_plan.jsonl", "video_prompts.jsonl", "assets/reference_images/video_refs/*.png"],
       "outputs": ["outputs/clips/*.mp4"],
-      "cost_guard": "render --execute requires real Codex video_refs image unless --allow-placeholder is explicit"
+      "ready": ["E01_S011"],
+      "cost_guard": "render --execute requires approved real Codex video_refs image; packed nodes require all beat references before paid submit."
     },
     {
       "lane_id": "audio_design",
       "name": "音乐和声音设计",
       "status": "partial",
       "inputs": ["audio_plan.md", "audio_layer_design.md", "bgm_prompts.jsonl", "sfx_prompts.jsonl"],
-      "outputs": ["assets/audio/bgm.mp3", "assets/audio/sfx/*.mp3", "outputs/audio/mix_plan.json"]
+      "outputs": ["assets/audio/bgm.mp3", "assets/audio/sfx/*.mp3", "outputs/audio/mix_plan.json"],
+      "rule": "模型音效只作参考；最终混音使用后期可控音轨。"
     },
     {
       "lane_id": "qa_review",
       "name": "人工审核回写",
       "status": "pending",
       "inputs": ["qa_rules.json", "review_checklist.md"],
-      "outputs": ["experiments.jsonl review_result fields"]
+      "outputs": ["experiments.jsonl review_result fields", "approved video_refs"]
     }
   ]
 }

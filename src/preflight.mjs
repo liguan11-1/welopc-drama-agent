@@ -121,7 +121,77 @@ function videoStatus(projectDir, videoPrompts) {
   };
 }
 
-function nextAction({ projectDir, approval, video, audio }) {
+function packedVideoStatus(projectDir) {
+  const planFile = path.join(projectDir, "video_node_packing_plan.jsonl");
+  if (!fs.existsSync(planFile)) {
+    return {
+      enabled: false,
+      plan_file: null,
+      total: 0,
+      ready_for_seedance: [],
+      missing_reference: [],
+      duration_overflow: [],
+    };
+  }
+
+  const packs = readJsonl(planFile);
+  const readyForSeedance = [];
+  const missingReference = [];
+  const durationOverflow = [];
+
+  for (const pack of packs) {
+    const beats = Array.isArray(pack.visual_beats) ? pack.visual_beats : [];
+    const missing = [];
+    for (const beat of beats) {
+      if (!beat.image_ref) {
+        missing.push({ shot_id: beat.shot_id || null, image_ref: null });
+        continue;
+      }
+      const referencePath = path.resolve(projectDir, beat.image_ref);
+      if (!fs.existsSync(referencePath)) {
+        missing.push({
+          shot_id: beat.shot_id || null,
+          image_ref: beat.image_ref,
+          expected_reference_image: referencePath,
+        });
+      }
+    }
+
+    if (Number(pack.target_duration_sec || 0) > 5) {
+      durationOverflow.push({
+        pack_id: pack.pack_id,
+        target_duration_sec: pack.target_duration_sec,
+      });
+    }
+
+    if (beats.length > 0 && missing.length === 0 && Number(pack.target_duration_sec || 0) <= 5) {
+      readyForSeedance.push({
+        pack_id: pack.pack_id,
+        shot_ids: pack.shot_ids || beats.map((beat) => beat.shot_id).filter(Boolean),
+        target_duration_sec: pack.target_duration_sec,
+        provider_duration_sec: pack.provider_duration_sec || 5,
+        reference_frames: beats.map((beat) => path.resolve(projectDir, beat.image_ref)),
+      });
+    } else if (missing.length > 0) {
+      missingReference.push({
+        pack_id: pack.pack_id,
+        shot_ids: pack.shot_ids || beats.map((beat) => beat.shot_id).filter(Boolean),
+        missing,
+      });
+    }
+  }
+
+  return {
+    enabled: true,
+    plan_file: planFile,
+    total: packs.length,
+    ready_for_seedance: readyForSeedance,
+    missing_reference: missingReference,
+    duration_overflow: durationOverflow,
+  };
+}
+
+function nextAction({ projectDir, approval, video, packedVideo, audio }) {
   if (approval.status !== "current") {
     return {
       action: "approve",
@@ -135,6 +205,14 @@ function nextAction({ projectDir, approval, video, audio }) {
       action: "poll_status",
       reason: "已有 Seedance 任务提交，先轮询并下载结果。",
       command: commandFor(projectDir, "status", "--poll"),
+    };
+  }
+
+  if (packedVideo?.enabled && packedVideo.missing_reference.length > 0) {
+    return {
+      action: "generate_reference_images",
+      reason: "打包视频节点还缺 visual beat 参考图，先继续生成并人工审核 Codex 参考图。",
+      command: commandFor(projectDir, "images"),
     };
   }
 
@@ -177,10 +255,12 @@ export function preflightProject({ projectDir }) {
   const videoPrompts = readJsonl(path.join(resolvedProjectDir, "video_prompts.jsonl"));
   const approval = approvalStatus(resolvedProjectDir);
   const video = videoStatus(resolvedProjectDir, videoPrompts);
+  const packedVideo = packedVideoStatus(resolvedProjectDir);
   const audio = audioStatus(resolvedProjectDir);
   const subtitles = subtitleStatus(resolvedProjectDir, shots);
   const costGuard = {
     can_submit_paid_video: approval.status === "current" && video.ready_for_seedance.length > 0,
+    can_submit_paid_packed_video: approval.status === "current" && packedVideo.ready_for_seedance.length > 0,
     requires_real_codex_reference: true,
     allow_placeholder_default: false,
   };
@@ -195,9 +275,10 @@ export function preflightProject({ projectDir }) {
     },
     approval,
     video,
+    packed_video: packedVideo,
     subtitles,
     audio,
     cost_guard: costGuard,
-    next_action: nextAction({ projectDir: resolvedProjectDir, approval, video, audio }),
+    next_action: nextAction({ projectDir: resolvedProjectDir, approval, video, packedVideo, audio }),
   };
 }

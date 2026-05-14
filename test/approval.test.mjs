@@ -50,6 +50,47 @@ test("approval becomes stale when subtitle timeline changes", async () => {
   assert.throws(() => assertApproved(projectDir), /stale/i);
 });
 
+test("approval becomes stale when video node packing plan changes", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "video node packing", outDir: projectDir });
+  fs.writeFileSync(
+    path.join(projectDir, "video_node_packing_plan.jsonl"),
+    `${JSON.stringify({ pack_id: "E01_PACK_001", provider_duration_sec: 5, visual_beats: ["E01_S001"] })}\n`,
+    "utf8",
+  );
+  approveProject(projectDir);
+
+  fs.writeFileSync(
+    path.join(projectDir, "video_node_packing_plan.jsonl"),
+    `${JSON.stringify({ pack_id: "E01_PACK_001", provider_duration_sec: 5, visual_beats: ["E01_S001", "E01_S002"] })}\n`,
+    "utf8",
+  );
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});
+
+test("approval becomes stale when video node packing rules change", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "video node packing rules", outDir: projectDir });
+  fs.writeFileSync(path.join(projectDir, "video_node_packing_rules.md"), "# Rules\n\nVersion one.\n", "utf8");
+  approveProject(projectDir);
+
+  fs.writeFileSync(path.join(projectDir, "video_node_packing_rules.md"), "# Rules\n\nVersion two.\n", "utf8");
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});
+
+test("approval becomes stale when QA rules change", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "QA rules", outDir: projectDir });
+  fs.writeFileSync(path.join(projectDir, "qa_rules.json"), JSON.stringify({ max_pack_duration_sec: 5 }), "utf8");
+  approveProject(projectDir);
+
+  fs.writeFileSync(path.join(projectDir, "qa_rules.json"), JSON.stringify({ max_pack_duration_sec: 4.8 }), "utf8");
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});
+
 test("approval becomes stale when audio layer design changes", async () => {
   const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
   await createProjectFromTopic({ topic: "唐僧不想取经了", outDir: projectDir });

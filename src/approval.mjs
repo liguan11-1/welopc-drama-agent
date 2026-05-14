@@ -15,6 +15,9 @@ const PACKAGE_FILES = [
   "audio_plan.md",
   "audio_layer_design.md",
   "subtitle_timeline.jsonl",
+  "video_node_packing_plan.jsonl",
+  "video_node_packing_rules.md",
+  "qa_rules.json",
   "render_queue.jsonl",
 ];
 

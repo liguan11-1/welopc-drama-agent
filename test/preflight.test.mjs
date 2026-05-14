@@ -39,3 +39,32 @@ test("preflight recommends the first ready Seedance test when approved", async (
   assert.match(report.next_action.command, /--batch 1/);
   assert.match(report.next_action.command, /--execute/);
 });
+
+test("preflight reports missing references for packed video nodes", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "packed video refs", outDir: projectDir });
+  fs.writeFileSync(
+    path.join(projectDir, "video_node_packing_plan.jsonl"),
+    `${JSON.stringify({
+      pack_id: "E01_PACK_001",
+      target_duration_sec: 3.2,
+      visual_beats: [
+        { shot_id: "E01_S001", image_ref: "assets/reference_images/video_refs/E01_S001.png" },
+        { shot_id: "E01_S002", image_ref: "assets/reference_images/video_refs/E01_S002.png" },
+      ],
+    })}\n`,
+    "utf8",
+  );
+  const videoRef = path.join(projectDir, "assets", "reference_images", "video_refs", "E01_S001.png");
+  fs.mkdirSync(path.dirname(videoRef), { recursive: true });
+  fs.writeFileSync(videoRef, Buffer.from("png"));
+  approveProject(projectDir);
+
+  const report = preflightProject({ projectDir });
+
+  assert.equal(report.packed_video.total, 1);
+  assert.equal(report.packed_video.ready_for_seedance.length, 0);
+  assert.equal(report.packed_video.missing_reference[0].pack_id, "E01_PACK_001");
+  assert.equal(report.packed_video.missing_reference[0].missing[0].shot_id, "E01_S002");
+  assert.equal(report.next_action.action, "generate_reference_images");
+});

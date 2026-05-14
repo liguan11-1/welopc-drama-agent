@@ -1,5 +1,13 @@
 # 《我在仙门当外门弟子》制作计划
 
+## 2026-05-15 更新：视频节点与声音规则
+
+- 第一集不再按 37 个短分镜逐条提交 Seedance。当前执行口径是 `video_node_packing_plan.jsonl`：把连续短镜头打包成 17 个 5 秒以内的视频节点，每个节点包含多个 `visual_beats`。
+- 每个 `visual_beats` 都要有独立参考图，参考图由 Codex image-gen 生成并人工审核。适配器支持多图时传 `reference_frames[]` 全量图片；如果只能传首帧，则必须把其他节拍图写入请求元数据和 prompt，并记录降级。
+- Seedance 2.0 Fast 仍按 5 秒节点生成，成片阶段按 `visual_beats` 和 `shots.jsonl` 的目标切点裁切，不能因为最低 5 秒而拉长正片节奏。
+- 视频模型允许生成或理解音效作为画面运动参考，但模型音频不进入最终成片。最终混音只使用后期 BGM、环境声、SFX 和人物配音。
+- `video_node_packing_plan.jsonl` 和 `qa_rules.json` 已纳入审批包，任何改动都会让 `preflight` 显示审批过期，付费渲染前必须重新 `approve`。
+
 ## 目标
 
 把小说现有 24 章改造成一套可 CLI 化执行的短剧 Agent 项目：用户以后只需要输入主题或剧本，Agent 自动拆出角色、图像参考、分镜、运镜、视频提示词、提词、BGM、SFX、配音策略和继续任务队列。

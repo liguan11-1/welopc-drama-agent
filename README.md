@@ -2,7 +2,7 @@
 
 `welopc-drama-agent` 是一个 CLI 优先的 WelOPC 场景包，用于把主题或剧本拆解成可执行的 AI 短剧 / 漫剧生产项目。
 
-当前主流程是：生成项目、审核审批、提交 Seedance 视频、生成声音设计、导入 BGM/SFX、本地合成。人物台词默认以字幕呈现，不默认生成 TTS。
+当前主流程是：生成项目、生成 Codex 生图参考包、审核审批、提交 Seedance 视频、生成声音设计、导入 BGM/SFX、本地合成。人物台词默认以字幕呈现，不默认生成 TTS。
 
 ## 安装
 
@@ -24,7 +24,7 @@ node .\bin\welopc-drama-agent.js new --topic "白骨精不想再演反派了" --
 node .\bin\welopc-drama-agent.js import --script .\story.md --out .\projects\story
 ```
 
-生成后项目目录会包含故事设定、角色设定、分镜、视频提示词、声音设计、渲染队列和本地预览页。
+生成后项目目录会包含故事设定、角色设定、分镜、视频提示词、Codex 生图提示词、声音设计、渲染队列和本地预览页。
 
 ## 审核与审批
 
@@ -37,6 +37,29 @@ node .\bin\welopc-drama-agent.js approve --project .\projects\baigujing
 ```
 
 审批会生成 `approval.json`。如果之后修改生产包，需要重新审批。
+
+## Codex 生图参考图
+
+项目创建后会自动生成 Codex 生图资产包：
+
+- `imagegen_manifest.json`：生图资产包摘要
+- `imagegen_prompts.jsonl`：人物、镜头、分镜、视频首帧参考图提示词
+- `imagegen_workflow.md`：低成本生成顺序
+- `assets/reference_images/`：生成图落盘目录
+
+也可以手动刷新：
+
+```powershell
+node .\bin\welopc-drama-agent.js images --project .\projects\baigujing
+```
+
+推荐顺序：
+
+1. 先生成 `character_reference`，保存到 `assets/reference_images/characters/`。
+2. 再生成 `camera_reference` 和 `storyboard_panel`，检查镜头与分镜。
+3. 最后生成 `video_reference_frame`，保存到 `assets/reference_images/video_refs/<shot_id>.png`。
+
+`render --execute` 会优先把 `video_refs/<shot_id>.png` 作为 Seedance 图生视频首帧。为了控制额度，第一轮建议只生成 `E01_S001` 的视频参考图并提交一镜。
 
 ## Seedance 视频
 
@@ -63,10 +86,16 @@ VIDEO_GENERATE_AUDIO=false
 node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 3 --resolution 480p
 ```
 
-只有加 `--execute` 才会提交真实 Seedance 任务。建议第一条先跑一镜：
+只有加 `--execute` 才会提交真实 Seedance 任务。默认会要求对应 `assets/reference_images/video_refs/<shot_id>.png` 已由 Codex 生图生成，避免用占位图消耗视频额度：
 
 ```powershell
 node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 1 --resolution 480p --execute
+```
+
+如果你明确要做一次低质量链路测试，可以显式允许占位图：
+
+```powershell
+node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 1 --resolution 480p --execute --allow-placeholder
 ```
 
 轮询并下载视频片段：
@@ -145,5 +174,5 @@ npm test
 
 ## 当前边界
 
-- 已完成：CLI 项目生成、审批门禁、Seedance 视频提交/轮询/下载、声音设计包、BGM/SFX 混音计划、本地 BGM 导入、可选 TTS、静态 Web 预览。
+- 已完成：CLI 项目生成、Codex 生图参考包、审批门禁、Seedance 视频提交/轮询/下载、声音设计包、BGM/SFX 混音计划、本地 BGM 导入、可选 TTS、静态 Web 预览。
 - 未完成：自动生成真实 SFX/BGM 音频、细粒度失败重试、完整 Web 控制台、WelOPC 场景包安装入口。

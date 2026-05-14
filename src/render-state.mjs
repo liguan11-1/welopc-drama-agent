@@ -3,6 +3,11 @@ import path from "node:path";
 import { assertApproved } from "./approval.mjs";
 import { ensureDir, readJson, readJsonl, writeJson } from "./files.mjs";
 import {
+  expectedVideoReferencePath,
+  resolveShotReferenceImage,
+  videoReferenceAssetId,
+} from "./imagegen-assets.mjs";
+import {
   createSeedanceConfig,
   downloadSeedanceFile,
   querySeedanceVideoTask,
@@ -29,6 +34,34 @@ function writeKeyframe(projectDir, shotId) {
   return file;
 }
 
+function resolveKeyframeForShot(projectDir, shotId, state, { execute = false, allowPlaceholder = false } = {}) {
+  const referenceImage = resolveShotReferenceImage(projectDir, shotId);
+  if (referenceImage) {
+    const isCodexReference = referenceImage.includes(path.join("assets", "reference_images", "video_refs"));
+    const assetId = isCodexReference ? videoReferenceAssetId(shotId) : `${shotId}_keyframe`;
+    state.images[assetId] = {
+      status: "succeeded",
+      provider: isCodexReference ? "codex_imagegen" : "local_keyframe",
+      output_path: referenceImage,
+      updated_at: new Date().toISOString(),
+    };
+    return referenceImage;
+  }
+
+  if (execute && !allowPlaceholder) {
+    throw new Error(`Codex video reference image is required before paid Seedance submission for ${shotId}: ${expectedVideoReferencePath(projectDir, shotId)}. Run "welopc-drama-agent images --project <project>" and generate/save the video_reference_frame first, or pass --allow-placeholder for an intentional low-quality test.`);
+  }
+
+  const keyframePath = writeKeyframe(projectDir, shotId);
+  state.images[`${shotId}_keyframe`] = {
+    status: "succeeded",
+    provider: "local_placeholder",
+    output_path: keyframePath,
+    updated_at: new Date().toISOString(),
+  };
+  return keyframePath;
+}
+
 function shotIdFromTaskId(taskId) {
   return String(taskId).replace(/_video_v\d+$/, "");
 }
@@ -39,6 +72,7 @@ export async function renderBatch({
   resolution = "480p",
   force = false,
   execute = false,
+  allowPlaceholder = false,
   env,
   fetchImpl,
 }) {
@@ -55,13 +89,7 @@ export async function renderBatch({
   const seedanceConfig = execute ? createSeedanceConfig({ env }) : null;
 
   for (const item of selected) {
-    const keyframePath = writeKeyframe(projectDir, item.shot_id);
-    state.images[`${item.shot_id}_keyframe`] = {
-      status: "succeeded",
-      provider: "builtin_storyboard",
-      output_path: keyframePath,
-      updated_at: new Date().toISOString(),
-    };
+    const keyframePath = resolveKeyframeForShot(projectDir, item.shot_id, state, { execute, allowPlaceholder });
     if (execute) {
       const result = await submitSeedanceVideoTask({
         prompt: item.prompt,

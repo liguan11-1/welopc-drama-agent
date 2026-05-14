@@ -2,6 +2,7 @@ import path from "node:path";
 import { approveProject } from "./approval.mjs";
 import { importManualBgm } from "./audio.mjs";
 import { composeProject } from "./compose.mjs";
+import { writeImageReferencePackage } from "./imagegen-assets.mjs";
 import { createProjectFromScript, createProjectFromTopic } from "./project-generator.mjs";
 import { refreshSeedanceStatuses, renderBatch } from "./render-state.mjs";
 import { writeSoundDesignPackage } from "./sound-design.mjs";
@@ -14,7 +15,9 @@ const HELP = `welopc 短剧 agent
   welopc-drama-agent new --topic "白骨精不想再演反派了" --out ./projects/baigujing
   welopc-drama-agent import --script ./story.md --out ./projects/story
   welopc-drama-agent approve --project ./projects/baigujing
+  welopc-drama-agent images --project ./projects/baigujing
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --resolution 480p --execute
+  welopc-drama-agent render --project ./projects/baigujing --batch 1 --execute --allow-placeholder
   welopc-drama-agent status --project ./projects/baigujing --poll
   welopc-drama-agent sound --project ./projects/baigujing
   welopc-drama-agent web --project ./projects/baigujing
@@ -84,6 +87,11 @@ export async function runCli(argv) {
     return;
   }
 
+  if (command === "images") {
+    printJson(writeImageReferencePackage({ projectDir: projectArg(args) }));
+    return;
+  }
+
   if (command === "render") {
     printJson(await renderBatch({
       projectDir: projectArg(args),
@@ -91,6 +99,7 @@ export async function runCli(argv) {
       resolution: args.resolution || "480p",
       force: Boolean(args.force),
       execute: Boolean(args.execute),
+      allowPlaceholder: Boolean(args["allow-placeholder"]),
     }));
     return;
   }

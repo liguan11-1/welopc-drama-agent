@@ -148,11 +148,11 @@ function writeProject(projectDir, project) {
   writeJsonl(path.join(projectDir, "render_queue.jsonl"), project.renderQueue);
   writeText(path.join(projectDir, "story_bible.md"), `# ${project.manifest.title}\n\n主题：${project.manifest.topic}\n\n原始素材：${project.sourceText || project.manifest.topic}\n\n核心冲突：主角发现自己不是自然失败，而是被系统化剧情安排。\n\n结尾钩子：如果主角拒绝继续扮演，故事系统会如何修复自己？\n`);
   writeText(path.join(projectDir, "episode_outline.md"), project.shots.map((shot) => `- ${shot.shot_id} ${shot.beat}: ${shot.visual_action}`).join("\n") + "\n");
-  writeText(path.join(projectDir, "audio_plan.md"), `# Audio Plan\n\nBGM：低沉环境氛围、暗金宗教感、逐步增加鼓点。\n\nSFX：任务牌亮起、经文翻动、脚步、远处低频冲击。\n\nVoiceover：短句、低声、克制，不使用过度解释。\n`);
+  writeText(path.join(projectDir, "audio_plan.md"), `# 音频方案\n\nBGM：低沉环境氛围、暗金宗教感、逐步增加鼓点。\n\n音效：任务牌亮起、经文翻动、脚步、远处低频冲击。\n\n旁白：短句、低声、克制，不使用过度解释。\n`);
   writeText(path.join(projectDir, "bgm_prompts.jsonl"), `${JSON.stringify({ prompt: "dark myth short drama BGM, low percussion, ritual bell, tense build-up", duration_sec: 45 })}\n`);
   writeText(path.join(projectDir, "sfx_prompts.jsonl"), `${JSON.stringify({ cue: "task_badge_light", description: "metallic notification with ritual bell tail" })}\n`);
   writeText(path.join(projectDir, "voiceover_script.md"), project.shots.map((shot) => `${shot.shot_id}: ${shot.dialogue_or_caption}`).join("\n") + "\n");
-  writeText(path.join(projectDir, "review_checklist.md"), "# Review Checklist\n\n- 角色一致\n- 分镜顺序成立\n- Prompt 可执行\n- 成本可控\n- 音频计划匹配节奏\n");
+  writeText(path.join(projectDir, "review_checklist.md"), "# 审核清单\n\n- 角色一致\n- 分镜顺序成立\n- Prompt 可执行\n- 成本可控\n- 音频方案匹配节奏\n");
   renderWebWorkspace(projectDir);
 }
 

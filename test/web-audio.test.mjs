@@ -7,7 +7,7 @@ import { importManualBgm } from "../src/audio.mjs";
 import { createProjectFromTopic } from "../src/project-generator.mjs";
 import { renderWebWorkspace } from "../src/web-workspace.mjs";
 
-test("web workspace shows story, shots, queue, approval, and audio plan", async () => {
+test("web workspace shows Chinese story, shots, queue, approval, and audio plan", async () => {
   const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
   await createProjectFromTopic({ topic: "白骨精不想再演反派了", outDir: projectDir });
 
@@ -16,9 +16,9 @@ test("web workspace shows story, shots, queue, approval, and audio plan", async 
 
   assert.match(html, /白骨精不想再演反派了/);
   assert.match(html, /E01_S001/);
-  assert.match(html, /Render Queue/);
-  assert.match(html, /Approval/);
-  assert.match(html, /Audio Plan/);
+  assert.match(html, /渲染队列/);
+  assert.match(html, /审批状态/);
+  assert.match(html, /音频方案/);
 });
 
 test("manual BGM import copies audio into project assets", async () => {

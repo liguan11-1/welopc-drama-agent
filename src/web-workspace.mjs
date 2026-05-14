@@ -28,7 +28,7 @@ export function renderWebWorkspace(projectDir) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(manifest.title)} - WelOPC Drama Agent</title>
+  <title>${escapeHtml(manifest.title)} - WelOPC 短剧 Agent</title>
   <style>
     body { margin: 0; font-family: Arial, "Microsoft YaHei", sans-serif; background: #10131a; color: #eef1f5; }
     main { max-width: 1120px; margin: 0 auto; padding: 32px 20px; }
@@ -44,25 +44,25 @@ export function renderWebWorkspace(projectDir) {
 <body>
   <main>
     <h1>${escapeHtml(manifest.title)}</h1>
-    <div class="meta">Topic: ${escapeHtml(manifest.topic)} | Mode: ${escapeHtml(manifest.input_mode)} | Duration: ${manifest.duration_sec}s</div>
+    <div class="meta">主题：${escapeHtml(manifest.topic)} | 输入模式：${escapeHtml(manifest.input_mode)} | 时长：${manifest.duration_sec}s</div>
     <section>
-      <h2>Approval</h2>
-      <p>${approval.approved ? "Approved" : "Not approved"}</p>
+      <h2>审批状态</h2>
+      <p>${approval.approved ? "已审批" : "未审批"}</p>
     </section>
     <section>
-      <h2>Story</h2>
+      <h2>故事设定</h2>
       <pre>${escapeHtml(story)}</pre>
     </section>
     <section>
-      <h2>Shots</h2>
+      <h2>分镜</h2>
       <div class="grid">${shots.map((shot) => `<div class="card shot"><h3>${escapeHtml(shot.shot_id)}</h3><p>${escapeHtml(shot.beat)}</p><p>${escapeHtml(shot.visual_action)}</p><code>${escapeHtml(shot.camera_motion)}</code></div>`).join("")}</div>
     </section>
     <section>
-      <h2>Render Queue</h2>
+      <h2>渲染队列</h2>
       <div class="grid">${queue.slice(0, 12).map((task) => `<div class="card"><h3>${escapeHtml(task.task_id)}</h3><p>${escapeHtml(task.task_type)} / ${escapeHtml(task.provider)}</p></div>`).join("")}</div>
     </section>
     <section>
-      <h2>Audio Plan</h2>
+      <h2>音频方案</h2>
       <pre>${escapeHtml(audio)}</pre>
     </section>
   </main>

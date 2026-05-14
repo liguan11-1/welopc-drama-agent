@@ -6,9 +6,9 @@ import { createProjectFromScript, createProjectFromTopic } from "./project-gener
 import { renderBatch } from "./render-state.mjs";
 import { renderWebWorkspace } from "./web-workspace.mjs";
 
-const HELP = `welopc drama agent
+const HELP = `welopc 短剧 agent
 
-Usage:
+用法：
   welopc-drama-agent new --topic "白骨精不想再演反派了" --out ./projects/baigujing
   welopc-drama-agent import --script ./story.md --out ./projects/story
   welopc-drama-agent approve --project ./projects/baigujing
@@ -17,7 +17,7 @@ Usage:
   welopc-drama-agent bgm --project ./projects/baigujing --provider manual --file ./bgm.mp3
   welopc-drama-agent compose --project ./projects/baigujing
 
-WelOPC alias:
+WelOPC 别名：
   welopc drama new --topic "..."
 `;
 

@@ -1,219 +1,163 @@
-# WelOPC Drama Agent Implementation Plan
+# WelOPC 短剧 Agent 实施计划
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> 面向后续开发者：如果继续执行本计划，需要按 Superpowers 规则使用 `superpowers:test-driven-development`、`superpowers:verification-before-completion`，涉及推送时使用 GitHub 发布流程。
 
-**Goal:** Build the first shippable `welopc-drama-agent` package with CLI-first project generation, approval gating, local Web review, BGM import, and ffmpeg composition.
+## 目标
 
-**Architecture:** A Node.js package exposes `welopc-drama-agent` and `welopc-drama` bin commands. Core modules generate and validate project files; CLI commands call core modules; the Web workspace is generated as static HTML from the same project files.
+先交付一个可安装、可测试、CLI 优先的 `welopc-drama-agent` 包，覆盖项目生成、审批门禁、本地 Web 审阅、BGM 导入和 ffmpeg 合成计划。
 
-**Tech Stack:** Node.js ESM, built-in `node:test`, JSON/JSONL/Markdown files, ffmpeg for composition.
+## 技术架构
 
----
+- Node.js ESM 包。
+- 暴露 `welopc-drama-agent` 和 `welopc-drama` 两个 bin 命令。
+- 核心模块负责生成和校验项目文件。
+- CLI 命令只编排核心模块。
+- Web 工作区从同一套项目文件生成静态 HTML。
+- 测试使用 Node 内置 `node:test`。
+- 合成依赖 ffmpeg。
 
-### Task 1: Package And CLI Skeleton
+## 当前状态
 
-**Files:**
-- Create: `package.json`
-- Create: `bin/welopc-drama-agent.js`
-- Create: `src/cli.mjs`
-- Test: `test/cli.test.mjs`
+第一阶段 CLI 骨架已完成并推送：
 
-- [ ] **Step 1: Write failing CLI help test**
+- 已完成 CLI help、`new`、`import`、`approve`、`render`、`web`、`bgm`、`compose`。
+- 已完成确定性 9 镜头、45 秒项目生成。
+- 已完成审批门禁和生产包哈希。
+- 已完成本地关键帧占位生成和 `render_state.json`。
+- 已完成静态 Web 预览页。
+- 已完成本地 BGM 导入。
+- 已完成 ffmpeg dry-run 合成计划。
 
-```js
-import test from "node:test";
-import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+尚未完成：
 
-test("CLI prints help", () => {
-  const result = spawnSync(process.execPath, ["bin/welopc-drama-agent.js", "--help"], {
-    encoding: "utf8",
-  });
+- Seedance 真实任务提交。
+- 任务状态轮询。
+- 视频片段下载。
+- BGM API 生成。
+- 完整 Web 控制台。
+- WelOPC 场景包安装入口。
 
-  assert.equal(result.status, 0);
-  assert.match(result.stdout, /welopc drama/);
-  assert.match(result.stdout, /new --topic/);
-});
-```
+## 任务 1：包和 CLI 骨架
 
-- [ ] **Step 2: Run test and verify it fails**
+涉及文件：
 
-Run: `node --test test/cli.test.mjs`
+- `package.json`
+- `bin/welopc-drama-agent.js`
+- `src/cli.mjs`
+- `test/cli.test.mjs`
 
-Expected: FAIL because the CLI files do not exist.
+完成标准：
 
-- [ ] **Step 3: Implement package and CLI help**
+- `node .\bin\welopc-drama-agent.js --help` 可以输出帮助。
+- 帮助里包含核心命令和 WelOPC 别名。
+- `npm test` 中 CLI 测试通过。
 
-Create `package.json` with package metadata, bin entries, and `npm test`.
+状态：已完成。
 
-Create `bin/welopc-drama-agent.js` as a Node executable that imports `src/cli.mjs`.
+## 任务 2：项目生成
 
-Create `src/cli.mjs` with argument parsing and help output.
+涉及文件：
 
-- [ ] **Step 4: Run test and verify it passes**
+- `src/project-generator.mjs`
+- `src/files.mjs`
+- `src/cli.mjs`
+- `test/project-generator.test.mjs`
 
-Run: `node --test test/cli.test.mjs`
+完成标准：
 
-Expected: PASS.
+- 主题模式可以创建完整项目目录。
+- 剧本模式可以创建完整项目目录。
+- 默认生成 9 个分镜、总时长 45 秒。
+- 项目至少包含 `manifest.json`、`story_bible.md`、`characters.json`、`scenes.json`、`shots.jsonl`、`video_prompts.jsonl`、`audio_plan.md`、`render_queue.jsonl`、`index.html`。
 
-### Task 2: Project Generation
+状态：已完成。
 
-**Files:**
-- Create: `src/project-generator.mjs`
-- Create: `src/files.mjs`
-- Modify: `src/cli.mjs`
-- Test: `test/project-generator.test.mjs`
+## 任务 3：审批门禁和渲染准备
 
-- [ ] **Step 1: Write failing project generation tests**
+涉及文件：
 
-Tests must verify that topic mode creates a project directory with `manifest.json`, `shots.jsonl`, `video_prompts.jsonl`, `audio_plan.md`, `render_queue.jsonl`, and `index.html`.
+- `src/approval.mjs`
+- `src/render-state.mjs`
+- `src/cli.mjs`
+- `test/approval.test.mjs`
 
-- [ ] **Step 2: Run test and verify it fails**
+完成标准：
 
-Run: `node --test test/project-generator.test.mjs`
+- 未审批项目不能执行渲染准备。
+- `approve` 会写入 `approval.json`。
+- `approval.json` 包含审批时间和生产包哈希。
+- 生产包变更后审批失效。
+- `render` 会生成本地关键帧，并更新 `render_state.json`。
 
-Expected: FAIL because generator functions do not exist.
+状态：已完成。
 
-- [ ] **Step 3: Implement deterministic generator**
+## 任务 4：Web 工作区和音频
 
-Implement `createProjectFromTopic()` and `createProjectFromScript()` using deterministic templates. Both must create a 9-shot, 45-second project by default.
+涉及文件：
 
-- [ ] **Step 4: Wire CLI commands**
+- `src/web-workspace.mjs`
+- `src/audio.mjs`
+- `src/cli.mjs`
+- `test/web-audio.test.mjs`
 
-Add:
+完成标准：
+
+- `web` 可以重新生成项目内的 `index.html`。
+- 页面展示故事、分镜、审批状态、渲染队列和音频方案。
+- `bgm --provider manual --file bgm.mp3` 会把文件复制到 `assets/audio/bgm.mp3`。
+- 音频导入状态写入 `outputs/audio/bgm_state.json`。
+
+状态：已完成。
+
+## 任务 5：合成命令
+
+涉及文件：
+
+- `src/compose.mjs`
+- `src/cli.mjs`
+- `test/compose.test.mjs`
+
+完成标准：
+
+- 缺少视频片段时，`compose` 明确拒绝。
+- 视频片段齐全时，生成 ffmpeg concat list。
+- 默认只生成 dry-run 计划。
+- 只有传入 `--execute` 时才执行 ffmpeg。
+
+状态：已完成。
+
+## 任务 6：中文文档
+
+涉及文件：
+
+- `README.md`
+- `docs/superpowers/specs/2026-05-14-welopc-drama-agent-design.md`
+- `docs/superpowers/plans/2026-05-14-welopc-drama-agent-implementation.md`
+- CLI 生成的 `audio_plan.md`
+- CLI 生成的 `review_checklist.md`
+- Web 工作区栏目文案
+
+完成标准：
+
+- 面向用户和后续开发者的文档统一为中文。
+- CLI 生成的项目文档标题为中文。
+- Web 预览页栏目为中文。
+- 测试同步覆盖中文栏目。
+
+状态：已完成。
+
+## 下一阶段建议
+
+下一阶段应先接 Seedance 真实视频任务，但仍保留费用保护：
+
+1. 新增 `src/providers/seedance.mjs`，通过注入 `fetch` 做单元测试。
+2. `render` 默认只准备任务，只有显式 `--execute` 才提交付费请求。
+3. 新增 `status --poll`，支持轮询、下载、断点续跑。
+4. 所有真实请求必须读取本地环境变量，不把 key 写入项目文件。
+5. README 中补充 Seedance 开通、模型 ID、费用保护和失败恢复说明。
+
+## 验证命令
 
 ```powershell
-welopc-drama-agent new --topic "..." --out ./project
-welopc-drama-agent import --script ./story.md --out ./project
+npm test
 ```
-
-- [ ] **Step 5: Run test and verify it passes**
-
-Run: `node --test test/project-generator.test.mjs`
-
-Expected: PASS.
-
-### Task 3: Approval Gate And Render Planning
-
-**Files:**
-- Create: `src/approval.mjs`
-- Create: `src/render-state.mjs`
-- Modify: `src/cli.mjs`
-- Test: `test/approval.test.mjs`
-
-- [ ] **Step 1: Write failing approval tests**
-
-Tests must verify that rendering refuses before approval and that `approve` creates `approval.json` with a project hash.
-
-- [ ] **Step 2: Run test and verify it fails**
-
-Run: `node --test test/approval.test.mjs`
-
-Expected: FAIL because approval functions do not exist.
-
-- [ ] **Step 3: Implement approval functions**
-
-Implement `approveProject()`, `assertApproved()`, and `hashProductionPackage()`.
-
-- [ ] **Step 4: Wire CLI commands**
-
-Add:
-
-```powershell
-welopc-drama-agent approve --project ./project
-welopc-drama-agent render --project ./project --batch 3 --resolution 480p
-```
-
-`render` should create local storyboard keyframes and update `render_state.json`. It should not call paid APIs in this first code push.
-
-- [ ] **Step 5: Run test and verify it passes**
-
-Run: `node --test test/approval.test.mjs`
-
-Expected: PASS.
-
-### Task 4: Web Workspace And Audio
-
-**Files:**
-- Create: `src/web-workspace.mjs`
-- Create: `src/audio.mjs`
-- Modify: `src/cli.mjs`
-- Test: `test/web-audio.test.mjs`
-
-- [ ] **Step 1: Write failing Web and audio tests**
-
-Tests must verify that `index.html` includes story, shots, approval status, render queue, and audio plan. Tests must verify that `bgm --provider manual --file bgm.mp3` copies the file into `assets/audio/bgm.mp3`.
-
-- [ ] **Step 2: Run test and verify it fails**
-
-Run: `node --test test/web-audio.test.mjs`
-
-Expected: FAIL because Web and audio modules do not exist.
-
-- [ ] **Step 3: Implement Web and audio modules**
-
-Generate static `index.html` from project files. Implement manual BGM import.
-
-- [ ] **Step 4: Run test and verify it passes**
-
-Run: `node --test test/web-audio.test.mjs`
-
-Expected: PASS.
-
-### Task 5: Compose Command
-
-**Files:**
-- Create: `src/compose.mjs`
-- Modify: `src/cli.mjs`
-- Test: `test/compose.test.mjs`
-
-- [ ] **Step 1: Write failing compose tests**
-
-Tests must verify that compose refuses when clips are missing and writes an ffmpeg concat list when clips exist.
-
-- [ ] **Step 2: Run test and verify it fails**
-
-Run: `node --test test/compose.test.mjs`
-
-Expected: FAIL because compose module does not exist.
-
-- [ ] **Step 3: Implement compose planning**
-
-Implement `planCompose()` and `composeProject()`. `composeProject()` should run ffmpeg only when `--execute` is passed; otherwise it writes a dry-run plan.
-
-- [ ] **Step 4: Run full tests**
-
-Run: `npm test`
-
-Expected: PASS.
-
-### Task 6: Documentation And Push
-
-**Files:**
-- Create: `README.md`
-- Create: `.gitignore`
-
-- [ ] **Step 1: Add usage docs**
-
-Document the internal workflow:
-
-```powershell
-npm install
-node .\bin\welopc-drama-agent.js new --topic "白骨精不想再演反派了" --out .\projects\baigujing
-node .\bin\welopc-drama-agent.js approve --project .\projects\baigujing
-node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 3 --resolution 480p
-node .\bin\welopc-drama-agent.js bgm --project .\projects\baigujing --provider manual --file .\bgm.mp3
-node .\bin\welopc-drama-agent.js compose --project .\projects\baigujing
-```
-
-- [ ] **Step 2: Verify**
-
-Run: `npm test`
-
-Expected: PASS.
-
-- [ ] **Step 3: Commit and push**
-
-Stage only package files, source files, tests, README, `.gitignore`, and this plan. Commit with `feat: add drama agent cli`.
-
-Push to `origin/main`.

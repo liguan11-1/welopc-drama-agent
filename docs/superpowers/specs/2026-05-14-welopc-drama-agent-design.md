@@ -219,8 +219,8 @@ welopc-drama-agent bgm --project .\projects\baigujing --provider minimax
 - `scripts/create_manga_demo_baigujing.js`
 - `scripts/render_manga_project.js`
 - `demo/manga-agent-demo/baigujing-kpi/`
-- `external_canvas_project_detail.json`
-- `external_canvas_visual_report.md`
+- `production_board.json`
+- `visual_production_report.md`
 
 白骨精短剧项目应成为第一个样例包和回归测试夹具。
 

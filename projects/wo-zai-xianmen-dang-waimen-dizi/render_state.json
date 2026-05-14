@@ -4,7 +4,7 @@
       "status": "succeeded",
       "provider": "codex_imagegen",
       "output_path": "D:\\Agent\\agent infra\\projects\\wo-zai-xianmen-dang-waimen-dizi\\assets\\reference_images\\video_refs\\E01_S011.png",
-      "updated_at": "2026-05-14T16:20:07.206Z"
+      "updated_at": "2026-05-14T16:57:58.463Z"
     }
   },
   "videos": {
@@ -13,8 +13,8 @@
       "provider": "seedance",
       "resolution": "480p",
       "keyframe_path": "D:\\Agent\\agent infra\\projects\\wo-zai-xianmen-dang-waimen-dizi\\assets\\reference_images\\video_refs\\E01_S011.png",
-      "updated_at": "2026-05-14T16:20:07.208Z"
+      "updated_at": "2026-05-14T16:57:58.465Z"
     }
   },
-  "updated_at": "2026-05-14T16:20:07.208Z"
+  "updated_at": "2026-05-14T16:57:58.465Z"
 }

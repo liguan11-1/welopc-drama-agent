@@ -1,15 +1,20 @@
 {
-  "source_case": {
-    "name": "外部视觉生产画布案例",
-    "local_json": "redacted_external_canvas_project_detail.json",
-    "local_screenshot": "redacted_external_canvas_current.png",
-    "node_count": 942,
-    "connection_count": 224,
-    "image_resource_count": 662,
-    "image_generate_count": 115,
-    "video_generate_count": 32,
-    "text_node_count": 53,
-    "group_count": 61
+  "production_rules": {
+    "asset_pool_before_paid_video": true,
+    "long_video_node_strategy": {
+      "node_duration_sec": "10-15",
+      "internal_visual_beats": "10-18",
+      "effective_visual_beat_sec": "0.8-1.5"
+    },
+    "episode_pacing": {
+      "episode_id": "E01",
+      "duration_sec": 70,
+      "shot_count": 37,
+      "average_shot_sec": 1.89,
+      "max_single_shot_sec": 2.8,
+      "first_paid_test_shot": "E01_S011"
+    },
+    "qa_required_before_seedance": true
   },
   "project": {
     "project_id": "xianmen_outer_disciple_s1",
@@ -24,7 +29,8 @@
       "name": "内容设定",
       "status": "done",
       "inputs": ["story_bible.md"],
-      "outputs": ["shots.jsonl", "voiceover_script.md"]
+      "outputs": ["shots.jsonl", "voiceover_script.md"],
+      "notes": "E01 已升级为 37 镜短切版本。"
     },
     {
       "lane_id": "character_consistency",

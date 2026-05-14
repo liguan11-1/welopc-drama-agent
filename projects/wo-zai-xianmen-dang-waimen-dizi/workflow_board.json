@@ -101,8 +101,8 @@
       "status": "partial",
       "inputs": ["imagegen_prompts.jsonl", "experiments.jsonl", "video_node_packing_plan.jsonl"],
       "outputs": ["assets/reference_images/video_refs/*.png"],
-      "ready": ["E01_S001", "E01_S002", "E01_S003", "E01_S004", "E01_S005", "E01_S010", "E01_S011"],
-      "ready_packed_nodes": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_005"],
+      "ready": ["E01_S001", "E01_S002", "E01_S003", "E01_S004", "E01_S005", "E01_S006", "E01_S007", "E01_S008", "E01_S009", "E01_S010", "E01_S011"],
+      "ready_packed_nodes": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_003", "E01_PACK_004", "E01_PACK_005"],
       "rule": "不要只为单镜头出图；按 video_node_packing_plan 的 visual_beats 补图。"
     },
     {
@@ -111,7 +111,7 @@
       "status": "partial",
       "inputs": ["video_node_packing_plan.jsonl", "video_prompts.jsonl", "assets/reference_images/video_refs/*.png"],
       "outputs": ["outputs/clips/*.mp4"],
-      "ready": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_005"],
+      "ready": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_003", "E01_PACK_004", "E01_PACK_005"],
       "cost_guard": "render --execute requires approved real Codex video_refs image; packed nodes require all beat references before paid submit."
     },
     {

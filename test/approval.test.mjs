@@ -30,3 +30,22 @@ test("approval creates approval metadata and unlocks local render batch", async 
   assert.equal(result.generated_keyframes.length, 2);
   assert.ok(fs.existsSync(path.join(projectDir, "render_state.json")));
 });
+
+test("approval becomes stale when subtitle timeline changes", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "唐僧不想取经了", outDir: projectDir });
+  fs.writeFileSync(
+    path.join(projectDir, "subtitle_timeline.jsonl"),
+    `${JSON.stringify({ subtitle_id: "E01_ND001", start_sec: 0, end_sec: 2, text: "第一版字幕" })}\n`,
+    "utf8",
+  );
+  approveProject(projectDir);
+
+  fs.writeFileSync(
+    path.join(projectDir, "subtitle_timeline.jsonl"),
+    `${JSON.stringify({ subtitle_id: "E01_ND001", start_sec: 0, end_sec: 2, text: "第二版字幕" })}\n`,
+    "utf8",
+  );
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});

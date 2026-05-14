@@ -12,5 +12,6 @@ test("CLI prints Chinese help", () => {
   assert.match(result.stdout, /WelOPC 别名/);
   assert.match(result.stdout, /new --topic/);
   assert.match(result.stdout, / images --project/);
+  assert.match(result.stdout, / preflight --project/);
   assert.match(result.stdout, / sound --project/);
 });

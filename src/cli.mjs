@@ -4,6 +4,7 @@ import { importManualBgm } from "./audio.mjs";
 import { composeProject } from "./compose.mjs";
 import { writeImageReferencePackage } from "./imagegen-assets.mjs";
 import { createProjectFromScript, createProjectFromTopic } from "./project-generator.mjs";
+import { preflightProject } from "./preflight.mjs";
 import { refreshSeedanceStatuses, renderBatch } from "./render-state.mjs";
 import { writeSoundDesignPackage } from "./sound-design.mjs";
 import { refreshVoiceStatuses, submitVoiceBatch } from "./voice.mjs";
@@ -16,6 +17,7 @@ const HELP = `welopc 短剧 agent
   welopc-drama-agent import --script ./story.md --out ./projects/story
   welopc-drama-agent approve --project ./projects/baigujing
   welopc-drama-agent images --project ./projects/baigujing
+  welopc-drama-agent preflight --project ./projects/baigujing
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --resolution 480p --execute
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --execute --allow-placeholder
   welopc-drama-agent status --project ./projects/baigujing --poll
@@ -89,6 +91,11 @@ export async function runCli(argv) {
 
   if (command === "images") {
     printJson(writeImageReferencePackage({ projectDir: projectArg(args) }));
+    return;
+  }
+
+  if (command === "preflight") {
+    printJson(preflightProject({ projectDir: projectArg(args) }));
     return;
   }
 

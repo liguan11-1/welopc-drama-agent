@@ -4,6 +4,7 @@ import { importManualBgm } from "./audio.mjs";
 import { composeProject } from "./compose.mjs";
 import { createProjectFromScript, createProjectFromTopic } from "./project-generator.mjs";
 import { refreshSeedanceStatuses, renderBatch } from "./render-state.mjs";
+import { refreshVoiceStatuses, submitVoiceBatch } from "./voice.mjs";
 import { renderWebWorkspace } from "./web-workspace.mjs";
 
 const HELP = `welopc 短剧 agent
@@ -14,6 +15,8 @@ const HELP = `welopc 短剧 agent
   welopc-drama-agent approve --project ./projects/baigujing
   welopc-drama-agent render --project ./projects/baigujing --batch 1 --resolution 480p --execute
   welopc-drama-agent status --project ./projects/baigujing --poll
+  welopc-drama-agent voice --project ./projects/baigujing --batch 3 --execute
+  welopc-drama-agent voice-status --project ./projects/baigujing --poll
   welopc-drama-agent web --project ./projects/baigujing
   welopc-drama-agent bgm --project ./projects/baigujing --provider manual --file ./bgm.mp3
   welopc-drama-agent compose --project ./projects/baigujing
@@ -94,6 +97,27 @@ export async function runCli(argv) {
 
   if (command === "status") {
     printJson(await refreshSeedanceStatuses({
+      projectDir: projectArg(args),
+      poll: Boolean(args.poll),
+      pollAttempts: Number(args["poll-attempts"] || (args.poll ? 60 : 1)),
+      pollIntervalSec: Number(args["poll-interval-sec"] || 20),
+    }));
+    return;
+  }
+
+  if (command === "voice") {
+    if (args.provider && args.provider !== "volcengine") throw new Error("Only --provider volcengine is implemented for voice.");
+    printJson(await submitVoiceBatch({
+      projectDir: projectArg(args),
+      batch: Number(args.batch || 3),
+      force: Boolean(args.force),
+      execute: Boolean(args.execute),
+    }));
+    return;
+  }
+
+  if (command === "voice-status") {
+    printJson(await refreshVoiceStatuses({
       projectDir: projectArg(args),
       poll: Boolean(args.poll),
       pollAttempts: Number(args["poll-attempts"] || (args.poll ? 60 : 1)),

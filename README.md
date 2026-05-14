@@ -105,6 +105,40 @@ node .\bin\welopc-drama-agent.js status --project .\projects\baigujing --poll --
 
 完成片段会写入 `outputs/clips/`，并回填到 `render_state.json`。
 
+## 生成人物声音
+
+人物配音走火山豆包语音异步 TTS。除了 Seedance 的 `ARK_API_KEY`，还需要在 `.env.local` 填写语音合成的 appid 和 access token：
+
+```dotenv
+VOLCENGINE_TTS_APPID=你的语音合成 AppID
+VOLCENGINE_TTS_ACCESS_TOKEN=你的语音合成 Access Token
+VOLCENGINE_TTS_BASE_URL=https://openspeech.bytedance.com/api/v1
+VOLCENGINE_TTS_RESOURCE_ID=volc.tts_async.default
+VOLCENGINE_TTS_DEFAULT_VOICE_TYPE=BV001_streaming
+VOLCENGINE_TTS_PROTAGONIST_VOICE_TYPE=
+VOLCENGINE_TTS_EXECUTOR_VOICE_TYPE=
+```
+
+先 dry-run 看会提交哪些台词：
+
+```powershell
+node .\bin\welopc-drama-agent.js voice --project .\projects\baigujing --provider volcengine --batch 3
+```
+
+确认后再真实提交：
+
+```powershell
+node .\bin\welopc-drama-agent.js voice --project .\projects\baigujing --provider volcengine --batch 3 --execute
+```
+
+轮询并下载配音：
+
+```powershell
+node .\bin\welopc-drama-agent.js voice-status --project .\projects\baigujing --poll
+```
+
+下载后的角色声音会写入 `assets/audio/voice/`，状态写入 `outputs/audio/voice_state.json`。`compose` 会自动识别成功下载的配音轨，并按分镜起始时间生成带 `adelay` 的 ffmpeg 混音计划。
+
 ## 生成 Web 预览页
 
 ```powershell
@@ -145,5 +179,5 @@ npm test
 
 ## 当前边界
 
-- 已完成：CLI 项目生成、审批门禁、本地分镜关键帧准备、Seedance 任务提交、状态查询与视频下载、静态 Web 预览、本地 BGM 导入、合成计划。
+- 已完成：CLI 项目生成、审批门禁、本地分镜关键帧准备、Seedance 任务提交、状态查询与视频下载、火山豆包 TTS 人物配音、静态 Web 预览、本地 BGM 导入、合成计划。
 - 未完成：更细的失败重试策略、BGM API、完整 Web 控制台、WelOPC 场景包安装入口。

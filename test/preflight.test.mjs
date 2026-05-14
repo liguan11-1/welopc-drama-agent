@@ -68,3 +68,28 @@ test("preflight reports missing references for packed video nodes", async () => 
   assert.equal(report.packed_video.missing_reference[0].missing[0].shot_id, "E01_S002");
   assert.equal(report.next_action.action, "generate_reference_images");
 });
+
+test("preflight disables legacy single-shot paid guard when packed nodes are enabled", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "packed video cost guard", outDir: projectDir });
+  fs.writeFileSync(
+    path.join(projectDir, "video_node_packing_plan.jsonl"),
+    `${JSON.stringify({
+      pack_id: "E01_PACK_001",
+      target_duration_sec: 1.6,
+      visual_beats: [{ shot_id: "E01_S001", image_ref: "assets/reference_images/video_refs/E01_S001.png" }],
+    })}\n`,
+    "utf8",
+  );
+  const videoRef = path.join(projectDir, "assets", "reference_images", "video_refs", "E01_S001.png");
+  fs.mkdirSync(path.dirname(videoRef), { recursive: true });
+  fs.writeFileSync(videoRef, Buffer.from("png"));
+  approveProject(projectDir);
+
+  const report = preflightProject({ projectDir });
+
+  assert.equal(report.video.ready_for_seedance.length, 1);
+  assert.equal(report.packed_video.ready_for_seedance.length, 1);
+  assert.equal(report.cost_guard.can_submit_paid_video, false);
+  assert.equal(report.cost_guard.can_submit_paid_packed_video, true);
+});

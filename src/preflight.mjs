@@ -259,7 +259,7 @@ export function preflightProject({ projectDir }) {
   const audio = audioStatus(resolvedProjectDir);
   const subtitles = subtitleStatus(resolvedProjectDir, shots);
   const costGuard = {
-    can_submit_paid_video: approval.status === "current" && video.ready_for_seedance.length > 0,
+    can_submit_paid_video: approval.status === "current" && !packedVideo.enabled && video.ready_for_seedance.length > 0,
     can_submit_paid_packed_video: approval.status === "current" && packedVideo.ready_for_seedance.length > 0,
     requires_real_codex_reference: true,
     allow_placeholder_default: false,

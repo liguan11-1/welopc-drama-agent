@@ -18,6 +18,7 @@ const PACKAGE_FILES = [
   "video_node_packing_plan.jsonl",
   "video_node_packing_rules.md",
   "qa_rules.json",
+  "workflow_board.json",
   "render_queue.jsonl",
 ];
 

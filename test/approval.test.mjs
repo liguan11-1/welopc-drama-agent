@@ -91,6 +91,17 @@ test("approval becomes stale when QA rules change", async () => {
   assert.throws(() => assertApproved(projectDir), /stale/i);
 });
 
+test("approval becomes stale when workflow board changes", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "workflow board", outDir: projectDir });
+  fs.writeFileSync(path.join(projectDir, "workflow_board.json"), JSON.stringify({ ready_packed_nodes: [] }), "utf8");
+  approveProject(projectDir);
+
+  fs.writeFileSync(path.join(projectDir, "workflow_board.json"), JSON.stringify({ ready_packed_nodes: ["E01_PACK_001"] }), "utf8");
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});
+
 test("approval becomes stale when audio layer design changes", async () => {
   const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
   await createProjectFromTopic({ topic: "唐僧不想取经了", outDir: projectDir });

@@ -49,3 +49,14 @@ test("approval becomes stale when subtitle timeline changes", async () => {
 
   assert.throws(() => assertApproved(projectDir), /stale/i);
 });
+
+test("approval becomes stale when audio layer design changes", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "唐僧不想取经了", outDir: projectDir });
+  fs.writeFileSync(path.join(projectDir, "audio_layer_design.md"), "# 声音层级\n\n第一版。\n", "utf8");
+  approveProject(projectDir);
+
+  fs.writeFileSync(path.join(projectDir, "audio_layer_design.md"), "# 声音层级\n\n第二版。\n", "utf8");
+
+  assert.throws(() => assertApproved(projectDir), /stale/i);
+});

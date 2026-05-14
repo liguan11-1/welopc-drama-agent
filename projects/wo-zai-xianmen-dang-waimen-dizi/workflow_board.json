@@ -20,6 +20,12 @@
       "non_dialogue_subtitle_count": 6,
       "voice_strategy": "no_tts_for_information_subtitles"
     },
+    "audio_layer_strategy": {
+      "video_source_audio": "ignored",
+      "seedance_provider_duration_sec": 5,
+      "final_clip_duration_source": "shots.jsonl duration_sec",
+      "mix_priority": ["voice", "sfx", "ambience", "bgm"]
+    },
     "qa_required_before_seedance": true
   },
   "project": {
@@ -94,7 +100,7 @@
       "lane_id": "audio_design",
       "name": "音乐和声音设计",
       "status": "partial",
-      "inputs": ["audio_plan.md", "bgm_prompts.jsonl", "sfx_prompts.jsonl"],
+      "inputs": ["audio_plan.md", "audio_layer_design.md", "bgm_prompts.jsonl", "sfx_prompts.jsonl"],
       "outputs": ["assets/audio/bgm.mp3", "assets/audio/sfx/*.mp3", "outputs/audio/mix_plan.json"]
     },
     {

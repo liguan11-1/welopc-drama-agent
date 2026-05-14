@@ -84,6 +84,7 @@
 - `assets/reference_images/characters/wen_gengran.png`
 - `assets/reference_images/scenes/pingxi_courtyard.png`
 - `assets/reference_images/video_refs/E01_S011.png`
+- `outputs/clips/E01_S011.mp4`：Seedance 5 秒输出档测试片段，合成时按 2.8 秒目标镜头裁切。
 
 ## 接下来继续做
 
@@ -98,8 +99,9 @@
 9. 通过后按 6 镜一组提交：S001-S006、S007-S012、S013-S018、S019-S024、S025-S030、S031-S037。
 10. 生成或导入 BGM：0-16 秒村落轻木笛，16-32 秒异常与云舟压迫，32-48 秒接引流程，48-65 秒离别升空，65-70 秒铜镜三色钩子。
 11. 配音先做关键台词：林溪、温庚然、女修、村童和字幕钩子。若不启用 TTS，则保留字幕加呼吸/衣料/环境声。
-12. 合成首版 MP4 后做四项 QA：人物脸是否跳变、镜头是否过长、对白字幕是否可读、非对白信息字幕是否被画面主体遮挡。
-13. `compose` 会自动生成 `outputs/final/subtitles.srt`，把对白字幕和非对白信息字幕合并进最终合成计划。
+12. 合成时忽略视频模型原声，只使用后期 BGM、SFX、环境声和人物配音。
+13. 合成首版 MP4 后做四项 QA：人物脸是否跳变、镜头是否过长、对白字幕是否可读、非对白信息字幕是否被画面主体遮挡。
+14. `compose` 会自动生成 `outputs/final/subtitles.srt`，把对白字幕和非对白信息字幕合并进最终合成计划。
 
 ## 生产队列规则
 
@@ -110,6 +112,7 @@
 - `PRODUCTION_BOARD.md`：可视化生产分区和当前差距。
 - `workflow_board.json`：分区、输入输出、状态和成本保护。
 - `subtitle_timeline.jsonl`：非对白信息字幕时间线，不进 TTS，用于合成字幕轨。
+- `audio_layer_design.md`：视频原声、BGM、SFX、人物配音、字幕和最终剪辑的层级规则。
 - `experiments.jsonl`：实验任务总队列。
 - `character_prompts.jsonl`：人物一致性补图。
 - `moodboard_prompts.jsonl`：场景和光影。

@@ -13,6 +13,7 @@ const PACKAGE_FILES = [
   "image_prompts.jsonl",
   "video_prompts.jsonl",
   "audio_plan.md",
+  "audio_layer_design.md",
   "subtitle_timeline.jsonl",
   "render_queue.jsonl",
 ];

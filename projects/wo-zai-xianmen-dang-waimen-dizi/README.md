@@ -25,6 +25,7 @@
 - `video_prompts.jsonl`：Seedance 图生视频任务提示词，首条为 `E01_S011_video_v01`。
 - `image_prompts.jsonl`：Codex 生图首帧提示词。
 - `audio_plan.md` / `voice_cast.json` / `bgm_prompts.jsonl` / `sfx_prompts.jsonl`：BGM、SFX、声音动机和可选人物配音策略。
+- `audio_layer_design.md`：声音层级、视频原声处理规则和最终剪辑流程。
 - `assets/reference_images/`：Codex 已生成参考图和后续视频首帧落点。
 - `PRODUCTION_BOARD.md`：可视化生产分区和资产实验规则。
 - `workflow_board.json`：机器可读的生产看板，记录分区、输入、输出、状态和成本保护。
@@ -85,6 +86,8 @@ node .\bin\welopc-drama-agent.js compose --project .\projects\wo-zai-xianmen-dan
 ```
 
 `compose` 会把 `shots.jsonl` 的对白字幕和 `subtitle_timeline.jsonl` 的非对白信息字幕合并写入 `outputs/final/subtitles.srt`，再作为字幕轨进入最终 MP4 合成。
+
+合成时 Seedance 视频只作为画面轨使用。若源视频带音轨，`compose` 会忽略源音频；最终声音只来自后期 BGM、SFX、环境声和人物配音。Seedance 2.0 输出按 5 秒档生成，合成阶段按 `shots.jsonl` 的目标时长裁切。
 
 ## 成本控制
 

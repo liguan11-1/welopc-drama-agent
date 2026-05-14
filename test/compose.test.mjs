@@ -139,3 +139,43 @@ test("compose plan writes dialogue and information subtitles", async () => {
   assert.match(subtitleBody, /00:00:01,000 --> 00:00:02,500/);
   assert.match(result.command.join(" "), /subtitles='/);
 });
+
+test("compose trims generated clips to target shot durations and ignores provider audio", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "白骨精不想再演反派了", outDir: projectDir });
+  const shotsFile = path.join(projectDir, "shots.jsonl");
+  const shots = fs.readFileSync(shotsFile, "utf8")
+    .trim()
+    .split(/\r?\n/)
+    .map((line) => JSON.parse(line));
+  shots[0].duration_sec = 2.8;
+  shots[0].time_range = "0-2.8s";
+  writeJsonl(shotsFile, shots);
+
+  const clipsDir = path.join(projectDir, "outputs", "clips");
+  fs.mkdirSync(clipsDir, { recursive: true });
+  const videos = {};
+  for (const shot of shots) {
+    const clip = path.join(clipsDir, `${shot.shot_id}.mp4`);
+    fs.writeFileSync(clip, Buffer.from(`clip-${shot.shot_id}`));
+    videos[`${shot.shot_id}_video_v01`] = {
+      status: "succeeded",
+      output_path: clip,
+      provider_duration_sec: 5,
+      target_duration_sec: shot.duration_sec,
+    };
+  }
+  writeJson(path.join(projectDir, "render_state.json"), { videos });
+
+  const result = composeProject({ projectDir, execute: false });
+  const command = result.command.join(" ");
+
+  assert.equal(result.clip_plan[0].target_duration_sec, 2.8);
+  assert.equal(result.source_audio_policy, "ignore_provider_audio");
+  assert.match(command, /trim=duration=2\.8/);
+  assert.match(command, /concat=n=9:v=1:a=0/);
+  assert.match(command, /-map \[vout\]/);
+  assert.match(command, / -an /);
+  assert.doesNotMatch(command, /-c copy/);
+  assert.doesNotMatch(command, /0:a/);
+});

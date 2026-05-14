@@ -7,18 +7,26 @@ function quoteConcatPath(file) {
   return `file '${path.resolve(file).replace(/\\/g, "/").replace(/'/g, "'\\''")}'`;
 }
 
-function resolveClips(projectDir) {
+function resolveClipPlan(projectDir) {
   const shots = readJsonl(path.join(projectDir, "shots.jsonl"));
   const stateFile = path.join(projectDir, "render_state.json");
   const state = fs.existsSync(stateFile) ? readJson(stateFile) : { videos: {} };
-  const clips = [];
+  const clipPlan = [];
   const missing = [];
 
   for (const shot of shots) {
     const taskId = `${shot.shot_id}_video_v01`;
-    const clip = state.videos?.[taskId]?.output_path || path.join(projectDir, "outputs", "clips", `${shot.shot_id}.mp4`);
-    if (clip && fs.existsSync(clip)) {
-      clips.push(clip);
+    const record = state.videos?.[taskId] || {};
+    const clipPath = record.output_path || path.join(projectDir, "outputs", "clips", `${shot.shot_id}.mp4`);
+    if (clipPath && fs.existsSync(clipPath)) {
+      clipPlan.push({
+        shot_id: shot.shot_id,
+        task_id: taskId,
+        input_path: clipPath,
+        target_duration_sec: Number(shot.duration_sec || record.target_duration_sec || 5),
+        provider_duration_sec: record.provider_duration_sec || null,
+        time_range: shot.time_range,
+      });
     } else {
       missing.push(taskId);
     }
@@ -27,7 +35,7 @@ function resolveClips(projectDir) {
   if (missing.length > 0) {
     throw new Error(`Cannot compose: missing clips for ${missing.join(", ")}`);
   }
-  return clips;
+  return clipPlan;
 }
 
 function startMsFromTimeRange(timeRange) {
@@ -168,69 +176,89 @@ function escapeSubtitleFilterPath(file) {
   return path.resolve(file).replace(/\\/g, "/").replace(/:/g, "\\:").replace(/'/g, "\\'");
 }
 
-function appendSubtitleArgs(command, subtitleFile) {
-  if (!subtitleFile) return;
-  command.push("-vf", `subtitles='${escapeSubtitleFilterPath(subtitleFile)}'`);
+function formatFilterNumber(value) {
+  return Number(value || 0).toFixed(3).replace(/\.?0+$/, "");
 }
 
-function buildAudioCommand({ concatList, output, audioTracks, subtitleFile }) {
-  const command = [
-    "ffmpeg",
-    "-y",
-    "-f",
-    "concat",
-    "-safe",
-    "0",
-    "-i",
-    concatList,
+function buildAudioLayerPlan(audioTracks) {
+  const baseLayers = [
+    {
+      layer_id: "L0_video",
+      source: "generated_video_clips",
+      policy: "visual_only_ignore_provider_audio",
+      mix_role: "picture_lock",
+      priority: 0,
+    },
+    {
+      layer_id: "L5_subtitles",
+      source: "shots.jsonl + subtitle_timeline.jsonl",
+      policy: "visual_text_only",
+      mix_role: "caption_information",
+      priority: 90,
+    },
   ];
+  const audioLayers = audioTracks.map((track) => ({
+    layer_id: `A_${track.kind}_${track.id}`,
+    source: track.input_path,
+    kind: track.kind,
+    delay_ms: track.delay_ms,
+    volume: track.volume,
+    mix_role: track.kind === "voice" ? "foreground_dialogue" : track.kind === "bgm" ? "music_bed" : "sound_effect",
+    priority: track.kind === "voice" ? 100 : track.kind === "sfx" ? 70 : 30,
+  }));
+  return [...baseLayers, ...audioLayers];
+}
+
+function buildComposeCommand({ clipPlan, output, audioTracks, subtitleFile }) {
+  const command = ["ffmpeg", "-y"];
+
+  for (const clip of clipPlan) {
+    command.push("-i", clip.input_path);
+  }
 
   for (const track of audioTracks) {
     command.push("-i", track.input_path);
   }
 
-  if (audioTracks.length === 0) {
-    appendSubtitleArgs(command, subtitleFile);
-    if (subtitleFile) {
-      command.push("-c:v", "libx264", "-c:a", "copy", output);
-      return command;
-    }
-    command.push("-c", "copy", output);
-    return command;
-  }
+  const videoFilters = clipPlan.map((clip, index) => (
+    `[${index}:v:0]trim=duration=${formatFilterNumber(clip.target_duration_sec)},setpts=PTS-STARTPTS[v${index}]`
+  ));
+  videoFilters.push(`${clipPlan.map((_, index) => `[v${index}]`).join("")}concat=n=${clipPlan.length}:v=1:a=0[vbase]`);
+  videoFilters.push(subtitleFile
+    ? `[vbase]subtitles='${escapeSubtitleFilterPath(subtitleFile)}'[vout]`
+    : "[vbase]null[vout]");
 
   const delayedLabels = audioTracks.map((track, index) => {
     const label = `audio${index}`;
-    const inputIndex = index + 1;
+    const inputIndex = clipPlan.length + index;
     return {
       label,
       filter: `[${inputIndex}:a]adelay=${track.delay_ms}|${track.delay_ms},volume=${track.volume}[${label}]`,
     };
   });
-  const mixInputs = delayedLabels.map((item) => `[${item.label}]`).join("");
-  const filter = `${delayedLabels.map((item) => item.filter).join(";")};${mixInputs}amix=inputs=${audioTracks.length}:normalize=0[aout]`;
+  const audioFilters = delayedLabels.map((item) => item.filter);
+  if (audioTracks.length > 0) {
+    const mixInputs = delayedLabels.map((item) => `[${item.label}]`).join("");
+    audioFilters.push(`${mixInputs}amix=inputs=${audioTracks.length}:normalize=0[aout]`);
+  }
+
   command.push(
     "-filter_complex",
-    filter,
+    [...videoFilters, ...audioFilters].join(";"),
     "-map",
-    "0:v:0",
-    "-map",
-    "[aout]",
+    "[vout]",
   );
-  appendSubtitleArgs(command, subtitleFile);
-  command.push(
-    "-c:v",
-    "libx264",
-    "-c:a",
-    "aac",
-    "-shortest",
-    output,
-  );
+  if (audioTracks.length > 0) {
+    command.push("-map", "[aout]", "-c:v", "libx264", "-c:a", "aac", "-shortest", output);
+  } else {
+    command.push("-an", "-c:v", "libx264", output);
+  }
   return command;
 }
 
 export function planCompose({ projectDir }) {
-  const clips = resolveClips(projectDir);
+  const clipPlan = resolveClipPlan(projectDir);
+  const clips = clipPlan.map((clip) => clip.input_path);
   const voiceTracks = resolveVoiceTracks(projectDir);
   const audioTracks = [...resolveSoundMixTracks(projectDir), ...voiceTracks.map((track) => ({
     kind: "voice",
@@ -247,11 +275,14 @@ export function planCompose({ projectDir }) {
   const subtitleTracks = resolveSubtitleTracks(projectDir);
   const subtitleFile = writeSubtitleSrt(finalDir, subtitleTracks);
   writeText(concatList, `${clips.map(quoteConcatPath).join("\n")}\n`);
-  const command = buildAudioCommand({ concatList, output, audioTracks, subtitleFile });
+  const command = buildComposeCommand({ clipPlan, output, audioTracks, subtitleFile });
   return {
     clips,
+    clip_plan: clipPlan,
     voice_tracks: voiceTracks,
     audio_tracks: audioTracks,
+    audio_layer_plan: buildAudioLayerPlan(audioTracks),
+    source_audio_policy: "ignore_provider_audio",
     subtitle_tracks: subtitleTracks,
     subtitle_file: subtitleFile,
     concat_list: concatList,

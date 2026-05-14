@@ -70,3 +70,37 @@ test("compose plan includes downloaded voice tracks with shot delays", async () 
   assert.match(result.command.join(" "), /adelay=5000/);
   assert.match(result.command.join(" "), /-filter_complex/);
 });
+
+test("compose plan includes BGM and local SFX tracks from sound mix plan", async () => {
+  const projectDir = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "welopc-drama-")), "project");
+  await createProjectFromTopic({ topic: "白骨精不想再演反派了", outDir: projectDir });
+  const clipsDir = path.join(projectDir, "outputs", "clips");
+  fs.mkdirSync(clipsDir, { recursive: true });
+  const videos = {};
+  for (let index = 1; index <= 9; index += 1) {
+    const shotId = `E01_S${String(index).padStart(3, "0")}`;
+    const clip = path.join(clipsDir, `${shotId}.mp4`);
+    fs.writeFileSync(clip, Buffer.from(`clip-${index}`));
+    videos[`${shotId}_video_v01`] = { status: "succeeded", output_path: clip };
+  }
+  writeJson(path.join(projectDir, "render_state.json"), { videos });
+
+  const bgmFile = path.join(projectDir, "assets", "audio", "bgm.mp3");
+  const sfxFile = path.join(projectDir, "assets", "audio", "sfx", "E01_S002_task_badge.mp3");
+  fs.mkdirSync(path.dirname(sfxFile), { recursive: true });
+  fs.writeFileSync(bgmFile, Buffer.from("bgm"));
+  fs.writeFileSync(sfxFile, Buffer.from("sfx"));
+  writeJson(path.join(projectDir, "outputs", "audio", "mix_plan.json"), {
+    voice_tracks: [],
+    bgm_tracks: [{ asset_id: "main_bgm", asset_path: bgmFile, start_sec: 0, volume: 0.55 }],
+    sfx_tracks: [{ cue_id: "E01_S002_task_badge", asset_path: sfxFile, start_sec: 5, volume: 0.9 }],
+  });
+
+  const result = composeProject({ projectDir, execute: false });
+
+  assert.equal(result.audio_tracks.length, 2);
+  assert.equal(result.audio_tracks.find((track) => track.kind === "sfx").delay_ms, 5000);
+  assert.match(result.command.join(" "), /amix=inputs=2/);
+  assert.match(result.command.join(" "), /volume=0.55/);
+  assert.match(result.command.join(" "), /adelay=5000/);
+});

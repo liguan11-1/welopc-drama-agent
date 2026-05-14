@@ -51,7 +51,41 @@ function resolveVoiceTracks(projectDir) {
     .sort((a, b) => a.delay_ms - b.delay_ms || a.shot_id.localeCompare(b.shot_id));
 }
 
-function buildAudioCommand({ concatList, output, voiceTracks }) {
+function normalizeAudioTrack(track, kind) {
+  const inputPath = track.input_path || track.asset_path || track.output_path;
+  if (!inputPath || !fs.existsSync(inputPath)) return null;
+  return {
+    kind,
+    id: track.cue_id || track.asset_id || track.shot_id || inputPath,
+    input_path: inputPath,
+    delay_ms: Math.round(Number(track.delay_ms ?? (Number(track.start_sec || 0) * 1000))),
+    volume: Number(track.volume ?? 1),
+  };
+}
+
+function resolveSoundMixTracks(projectDir) {
+  const stateFile = path.join(projectDir, "outputs", "audio", "mix_plan.json");
+  const tracks = [];
+  if (fs.existsSync(stateFile)) {
+    const state = readJson(stateFile);
+    for (const item of state.bgm_tracks || []) {
+      const track = normalizeAudioTrack(item, "bgm");
+      if (track) tracks.push(track);
+    }
+    for (const item of state.sfx_tracks || []) {
+      const track = normalizeAudioTrack(item, "sfx");
+      if (track) tracks.push(track);
+    }
+  }
+
+  const defaultBgm = path.join(projectDir, "assets", "audio", "bgm.mp3");
+  if (fs.existsSync(defaultBgm) && !tracks.some((track) => path.resolve(track.input_path) === path.resolve(defaultBgm))) {
+    tracks.unshift({ kind: "bgm", id: "main_bgm", input_path: defaultBgm, delay_ms: 0, volume: 0.45 });
+  }
+  return tracks;
+}
+
+function buildAudioCommand({ concatList, output, audioTracks }) {
   const command = [
     "ffmpeg",
     "-y",
@@ -63,25 +97,25 @@ function buildAudioCommand({ concatList, output, voiceTracks }) {
     concatList,
   ];
 
-  for (const track of voiceTracks) {
+  for (const track of audioTracks) {
     command.push("-i", track.input_path);
   }
 
-  if (voiceTracks.length === 0) {
+  if (audioTracks.length === 0) {
     command.push("-c", "copy", output);
     return command;
   }
 
-  const delayedLabels = voiceTracks.map((track, index) => {
-    const label = `voice${index}`;
+  const delayedLabels = audioTracks.map((track, index) => {
+    const label = `audio${index}`;
     const inputIndex = index + 1;
     return {
       label,
-      filter: `[${inputIndex}:a]adelay=${track.delay_ms}|${track.delay_ms}[${label}]`,
+      filter: `[${inputIndex}:a]adelay=${track.delay_ms}|${track.delay_ms},volume=${track.volume}[${label}]`,
     };
   });
   const mixInputs = delayedLabels.map((item) => `[${item.label}]`).join("");
-  const filter = `${delayedLabels.map((item) => item.filter).join(";")};${mixInputs}amix=inputs=${voiceTracks.length}:normalize=0[aout]`;
+  const filter = `${delayedLabels.map((item) => item.filter).join(";")};${mixInputs}amix=inputs=${audioTracks.length}:normalize=0[aout]`;
   command.push(
     "-filter_complex",
     filter,
@@ -102,14 +136,21 @@ function buildAudioCommand({ concatList, output, voiceTracks }) {
 export function planCompose({ projectDir }) {
   const clips = resolveClips(projectDir);
   const voiceTracks = resolveVoiceTracks(projectDir);
+  const audioTracks = [...resolveSoundMixTracks(projectDir), ...voiceTracks.map((track) => ({
+    kind: "voice",
+    id: track.shot_id,
+    input_path: track.input_path,
+    delay_ms: track.delay_ms,
+    volume: 1,
+  }))];
   const outputDir = path.join(projectDir, "outputs");
   const finalDir = path.join(outputDir, "final");
   ensureDir(finalDir);
   const concatList = path.join(finalDir, "concat_list.txt");
   const output = path.join(finalDir, "final.mp4");
   writeText(concatList, `${clips.map(quoteConcatPath).join("\n")}\n`);
-  const command = buildAudioCommand({ concatList, output, voiceTracks });
-  return { clips, voice_tracks: voiceTracks, concat_list: concatList, output_path: output, command };
+  const command = buildAudioCommand({ concatList, output, audioTracks });
+  return { clips, voice_tracks: voiceTracks, audio_tracks: audioTracks, concat_list: concatList, output_path: output, command };
 }
 
 export function composeProject({ projectDir, execute = false }) {

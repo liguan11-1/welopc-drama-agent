@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ensureDir, slugify, writeJson, writeJsonl, writeText } from "./files.mjs";
+import { writeSoundDesignPackage } from "./sound-design.mjs";
 import { renderWebWorkspace } from "./web-workspace.mjs";
 
 const DEFAULT_STYLE = {
@@ -153,6 +154,7 @@ function writeProject(projectDir, project) {
   writeText(path.join(projectDir, "sfx_prompts.jsonl"), `${JSON.stringify({ cue: "task_badge_light", description: "metallic notification with ritual bell tail" })}\n`);
   writeText(path.join(projectDir, "voiceover_script.md"), project.shots.map((shot) => `${shot.shot_id}: ${shot.dialogue_or_caption}`).join("\n") + "\n");
   writeText(path.join(projectDir, "review_checklist.md"), "# 审核清单\n\n- 角色一致\n- 分镜顺序成立\n- Prompt 可执行\n- 成本可控\n- 音频方案匹配节奏\n");
+  writeSoundDesignPackage({ projectDir });
   renderWebWorkspace(projectDir);
 }
 

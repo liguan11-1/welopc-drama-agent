@@ -2,7 +2,7 @@
 
 `welopc-drama-agent` 是一个 CLI 优先的 WelOPC 场景包，用于把主题或剧本拆解成可执行的 AI 短剧 / 漫剧生产项目。
 
-当前阶段先围绕 CLI 跑通本地工作流：生成项目、人工审核、审批解锁、准备分批渲染、导入本地 BGM，并为后续 Seedance 视频任务和 ffmpeg 合成保留状态文件。
+当前主流程是：生成项目、审核审批、提交 Seedance 视频、生成声音设计、导入 BGM/SFX、本地合成。人物台词默认以字幕呈现，不默认生成 TTS。
 
 ## 安装
 
@@ -24,19 +24,7 @@ node .\bin\welopc-drama-agent.js new --topic "白骨精不想再演反派了" --
 node .\bin\welopc-drama-agent.js import --script .\story.md --out .\projects\story
 ```
 
-生成后项目目录会包含：
-
-- `manifest.json`：项目元信息
-- `story_bible.md`：故事设定
-- `characters.json`：角色设定
-- `scenes.json`：场景设定
-- `shots.jsonl`：分镜列表
-- `image_prompts.jsonl`：关键帧 / 生图提示词
-- `video_prompts.jsonl`：视频生成提示词
-- `audio_plan.md`：音频方案
-- `render_queue.jsonl`：渲染队列
-- `review_checklist.md`：审核清单
-- `index.html`：本地可视化预览页
+生成后项目目录会包含故事设定、角色设定、分镜、视频提示词、声音设计、渲染队列和本地预览页。
 
 ## 审核与审批
 
@@ -48,19 +36,9 @@ node .\bin\welopc-drama-agent.js import --script .\story.md --out .\projects\sto
 node .\bin\welopc-drama-agent.js approve --project .\projects\baigujing
 ```
 
-审批会生成 `approval.json`，里面记录审批时间和当前生产包哈希。后续如果修改了生产包，需要重新审批。
+审批会生成 `approval.json`。如果之后修改生产包，需要重新审批。
 
-## 准备渲染批次
-
-默认情况下，`render` 只生成本地分镜关键帧占位图，并更新 `render_state.json`，把镜头标记为等待 Seedance 提交。
-
-```powershell
-node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 3 --resolution 480p
-```
-
-建议首轮内部测试使用 `480p` 和 `--batch 3`，先验证风格和运镜，再扩大批次或提高分辨率。
-
-## 配置 Seedance Key
+## Seedance 视频
 
 复制 `.env.example` 为 `.env.local`，只在本地填写真实 key：
 
@@ -79,96 +57,84 @@ VIDEO_RATIO=9:16
 VIDEO_GENERATE_AUDIO=false
 ```
 
-`.env.local` 已被 `.gitignore` 忽略，不会提交到仓库。
+默认 `render` 只准备本地关键帧和状态文件，不消耗额度：
 
-## 提交 Seedance 视频任务
+```powershell
+node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 3 --resolution 480p
+```
 
-只有显式传入 `--execute` 才会提交真实 Seedance 任务并消耗额度。建议第一条先跑一镜：
+只有加 `--execute` 才会提交真实 Seedance 任务。建议第一条先跑一镜：
 
 ```powershell
 node .\bin\welopc-drama-agent.js render --project .\projects\baigujing --batch 1 --resolution 480p --execute
 ```
 
-提交成功后，`render_state.json` 会记录 `provider_task_id`，不会记录 API key。
-
-查询和下载完成的视频片段：
+轮询并下载视频片段：
 
 ```powershell
 node .\bin\welopc-drama-agent.js status --project .\projects\baigujing --poll
 ```
 
-`--poll` 默认最多轮询 60 次，每 20 秒一次。需要更短试跑时可以加：
+## 声音设计
+
+默认音频策略是声音设计优先，不生成角色 TTS。角色台词保留为字幕 / 分镜文本，人物情绪通过声音动机表达。
+
+重新生成声音设计包：
 
 ```powershell
-node .\bin\welopc-drama-agent.js status --project .\projects\baigujing --poll --poll-attempts 3 --poll-interval-sec 10
+node .\bin\welopc-drama-agent.js sound --project .\projects\baigujing
 ```
 
-完成片段会写入 `outputs/clips/`，并回填到 `render_state.json`。
+该命令会生成：
 
-## 生成人物声音
+- `sound_design.jsonl`：每个分镜的声音设计
+- `ambience_prompts.jsonl`：环境声提示词
+- `sfx_prompts.jsonl`：动作音效提示词
+- `outputs/audio/mix_plan.json`：BGM / SFX 混音计划
 
-人物配音走火山豆包语音异步 TTS。除了 Seedance 的 `ARK_API_KEY`，还需要在 `.env.local` 填写语音合成的 appid 和 access token：
+你可以把真实音频素材放到：
 
-```dotenv
-VOLCENGINE_TTS_APPID=你的语音合成 AppID
-VOLCENGINE_TTS_ACCESS_TOKEN=你的语音合成 Access Token
-VOLCENGINE_TTS_BASE_URL=https://openspeech.bytedance.com/api/v1
-VOLCENGINE_TTS_RESOURCE_ID=volc.tts_async.default
-VOLCENGINE_TTS_DEFAULT_VOICE_TYPE=BV001_streaming
-VOLCENGINE_TTS_PROTAGONIST_VOICE_TYPE=
-VOLCENGINE_TTS_EXECUTOR_VOICE_TYPE=
+```text
+assets/audio/bgm.mp3
+assets/audio/sfx/<cue_id>.mp3
 ```
 
-先 dry-run 看会提交哪些台词：
-
-```powershell
-node .\bin\welopc-drama-agent.js voice --project .\projects\baigujing --provider volcengine --batch 3
-```
-
-确认后再真实提交：
-
-```powershell
-node .\bin\welopc-drama-agent.js voice --project .\projects\baigujing --provider volcengine --batch 3 --execute
-```
-
-轮询并下载配音：
-
-```powershell
-node .\bin\welopc-drama-agent.js voice-status --project .\projects\baigujing --poll
-```
-
-下载后的角色声音会写入 `assets/audio/voice/`，状态写入 `outputs/audio/voice_state.json`。`compose` 会自动识别成功下载的配音轨，并按分镜起始时间生成带 `adelay` 的 ffmpeg 混音计划。
-
-## 生成 Web 预览页
-
-```powershell
-node .\bin\welopc-drama-agent.js web --project .\projects\baigujing
-```
-
-该命令会重新生成项目下的 `index.html`。目前它是静态审阅页，不是完整 Web 控制台。
+`compose` 会自动读取 `mix_plan.json`，按分镜时间点用 `adelay` 混入本地 BGM/SFX。
 
 ## 导入 BGM
-
-当前先支持手动导入本地音频文件：
 
 ```powershell
 node .\bin\welopc-drama-agent.js bgm --project .\projects\baigujing --provider manual --file .\bgm.mp3
 ```
 
-文件会复制到 `assets/audio/bgm.mp3`，状态写入 `outputs/audio/bgm_state.json`。后续可以再接入 BGM API。
+文件会复制到 `assets/audio/bgm.mp3`。
 
-## 合成计划
+## 合成
 
-当所有视频片段已经存在于 `render_state.json` 指向的位置后，可以生成 ffmpeg 合成计划：
+当视频片段已经存在后，生成 ffmpeg 合成计划：
 
 ```powershell
 node .\bin\welopc-drama-agent.js compose --project .\projects\baigujing
 ```
 
-默认只写入 dry-run 计划，不直接执行 ffmpeg。确认素材齐全后可加 `--execute`：
+确认素材齐全后执行：
 
 ```powershell
 node .\bin\welopc-drama-agent.js compose --project .\projects\baigujing --execute
+```
+
+## 可选 TTS
+
+TTS 已作为可选插件保留，但不属于默认主流程。需要人物真配音时，再配置火山豆包语音合成：
+
+```dotenv
+VOLCENGINE_TTS_APPID=你的语音合成 AppID
+VOLCENGINE_TTS_ACCESS_TOKEN=你的语音合成 Access Token
+```
+
+```powershell
+node .\bin\welopc-drama-agent.js voice --project .\projects\baigujing --provider volcengine --batch 3 --execute
+node .\bin\welopc-drama-agent.js voice-status --project .\projects\baigujing --poll
 ```
 
 ## 测试
@@ -179,5 +145,5 @@ npm test
 
 ## 当前边界
 
-- 已完成：CLI 项目生成、审批门禁、本地分镜关键帧准备、Seedance 任务提交、状态查询与视频下载、火山豆包 TTS 人物配音、静态 Web 预览、本地 BGM 导入、合成计划。
-- 未完成：更细的失败重试策略、BGM API、完整 Web 控制台、WelOPC 场景包安装入口。
+- 已完成：CLI 项目生成、审批门禁、Seedance 视频提交/轮询/下载、声音设计包、BGM/SFX 混音计划、本地 BGM 导入、可选 TTS、静态 Web 预览。
+- 未完成：自动生成真实 SFX/BGM 音频、细粒度失败重试、完整 Web 控制台、WelOPC 场景包安装入口。

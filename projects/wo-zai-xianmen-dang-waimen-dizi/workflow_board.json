@@ -14,6 +14,12 @@
       "max_single_shot_sec": 2.8,
       "first_paid_test_shot": "E01_S011"
     },
+    "subtitle_strategy": {
+      "dialogue_source": "shots.jsonl dialogue_or_caption",
+      "information_source": "subtitle_timeline.jsonl",
+      "non_dialogue_subtitle_count": 6,
+      "voice_strategy": "no_tts_for_information_subtitles"
+    },
     "qa_required_before_seedance": true
   },
   "project": {
@@ -29,8 +35,8 @@
       "name": "内容设定",
       "status": "done",
       "inputs": ["story_bible.md"],
-      "outputs": ["shots.jsonl", "voiceover_script.md"],
-      "notes": "E01 已升级为 37 镜短切版本。"
+      "outputs": ["shots.jsonl", "voiceover_script.md", "subtitle_timeline.jsonl"],
+      "notes": "E01 已升级为 37 镜短切版本，并补 6 条非对白信息字幕。"
     },
     {
       "lane_id": "character_consistency",

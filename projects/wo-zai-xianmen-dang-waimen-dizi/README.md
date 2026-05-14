@@ -9,6 +9,7 @@
 - 已完成第一集高密度生产包：70 秒、37 镜，平均约 1.89 秒一镜，保留 E01_S011 作为低成本 Seedance 单镜测试点。
 - 已补强人物信息：林溪长期看天、泥墙云舟痕迹、小布袋旧竹片、村童议论、温庚然压住不能出手的动作、女修流程化接引。
 - 已完成视频提示词、首帧提示词、BGM/SFX/声音设计、配音策略和继续任务队列。
+- 已补充第一集 6 条非对白信息字幕：只提升画面信息密度，不新增对白，也不进入 TTS。
 - 已生成 5 张 Codex 生图参考图：林溪、温庚然、平溪村院子、云舟到来、整体视觉圣经。
 - 已补充工业化实验层：生产看板、实验队列、多机位九宫格、人物场景融合、moodboard、光影测试和 QA 标签。
 - 未提交 Seedance 付费视频任务：目前只是准备素材和计划，避免在首帧未完全确认时消耗额度。
@@ -20,6 +21,7 @@
 - `PLAN.md`：从现在继续做视频、BGM、配音、合成的执行计划。
 - `characters.json` / `scenes.json` / `props.json`：角色、场景、道具设定。
 - `shots.jsonl`：第一集 37 个短切镜头，含时长、运镜、画面、台词和声音提示。
+- `subtitle_timeline.jsonl`：第一集非对白信息字幕时间线，标记 `no_tts`，供后续合成字幕轨使用。
 - `video_prompts.jsonl`：Seedance 图生视频任务提示词，首条为 `E01_S011_video_v01`。
 - `image_prompts.jsonl`：Codex 生图首帧提示词。
 - `audio_plan.md` / `voice_cast.json` / `bgm_prompts.jsonl` / `sfx_prompts.jsonl`：BGM、SFX、声音动机和可选人物配音策略。
@@ -76,9 +78,12 @@ node .\bin\welopc-drama-agent.js bgm --project .\projects\wo-zai-xianmen-dang-wa
 node .\bin\welopc-drama-agent.js compose --project .\projects\wo-zai-xianmen-dang-waimen-dizi
 ```
 
+`compose` 会把 `shots.jsonl` 的对白字幕和 `subtitle_timeline.jsonl` 的非对白信息字幕合并写入 `outputs/final/subtitles.srt`，再作为字幕轨进入最终 MP4 合成。
+
 ## 成本控制
 
 - 视频先用 `480p`，单次 `--batch 1`，确认模型和画风后再批量。
 - 不使用 `--allow-placeholder` 提交付费任务，必须先有真实 Codex 首帧。
 - 先做第 11 镜“云舟压境”质量测试，再扩展到第 21 镜“拂尘牵引”和第 28 镜“林溪升空”。
 - BGM/SFX 优先手工导入或低成本生成；人物配音默认保留为可选项，先用字幕、呼吸、环境声和音色动机完成情绪表达。
+- 非对白信息字幕只补关键关系，不解释世界观，不替代镜头表演；字幕轨确认后再进入首版 MP4 合成。

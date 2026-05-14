@@ -10,6 +10,7 @@
   "episode_title": "云舟来村",
   "duration_sec": 70,
   "shot_count": 37,
+  "non_dialogue_subtitle_count": 6,
   "ratio": "9:16",
   "status": "visual_development",
   "current_phase": "reference_images_and_audio_design",

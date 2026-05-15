@@ -23,11 +23,21 @@
     "age_drift": "儿童、长辈、接引女修等年龄感漂移，导致角色不再符合原设；例如林溪成人化、温庚然70岁以上病弱化、女修50岁以上老化。",
     "body_proportion_drift": "身高、头身比、肩宽、手脚比例或体态与角色特征码不一致。",
     "background_not_white": "多视角正交图没有保持白底棚拍条件，影响后续一致性抽取。",
-    "feature_code_missing": "核心角色缺少 character_feature_code，后续镜头无法稳定继承人物特征。"
+    "feature_code_missing": "核心角色缺少 character_feature_code，后续镜头无法稳定继承人物特征。",
+    "low_two_second_hook": "开头0-2秒缺少明确视觉钩子，观众第一眼不知道该看什么。",
+    "generic_ai_look": "画面呈现同质化AI古装写真、塑料皮肤、随机飘带或廉价光效。",
+    "sci_fantasy_underpowered": "云舟、铜镜、灵光缺少玉银材质、水波结界、符文光路或巨物尺度，科幻仙侠感不足。",
+    "overmodern_scifi": "科幻感越界，变成现代飞船、机甲、霓虹城市或硬科幻制服。",
+    "character_attractiveness_low": "人物不够好看或没有性格识别点，像普通路人古装模板。",
+    "cinematic_layering_weak": "前景/中景/背景层次弱，镜头语言像平面海报或站桩截图。"
   },
   "character_consistency": {
     "feature_code_required_for_core_characters": true,
-    "core_character_ids": ["lin_xi", "wen_gengran", "xiao_huai_envoy"],
+    "core_character_ids": [
+      "lin_xi",
+      "wen_gengran",
+      "xiao_huai_envoy"
+    ],
     "required_assets_before_scene_fusion": [
       "character_reference",
       "character_feature_codes.json entry",
@@ -49,12 +59,15 @@
     "costume_drift must be false",
     "scene_drift must be false",
     "motion_overload must be false",
-    "usable_for_seedance must be true"
+    "usable_for_seedance must be true",
+    "low_two_second_hook must be false",
+    "generic_ai_look must be false",
+    "cinematic_layering_weak must be false"
   ],
   "video_node_packing": {
     "plan_file": "video_node_packing_plan.jsonl",
     "provider_duration_sec": 5,
-    "hard_max_target_duration_sec": 5.0,
+    "hard_max_target_duration_sec": 5,
     "preferred_max_target_duration_sec": 4.8,
     "reference_frame_policy": "每个 visual_beats[] 都必须有自己的 image_ref；适配器支持多图时必须传入 reference_frames[] 全量图片。",
     "adapter_fallback_policy": "如果当前视频模型适配器只能传单张首帧，必须把其他节拍图写入请求元数据和 prompt，并在执行日志标记为 multi_image_input_degraded。",
@@ -65,7 +78,11 @@
       "reference_frames length equals visual_beats length",
       "sound_policy == model_sfx_reference_only_final_audio_from_post_layers",
       "source video audio is ignored in compose",
-      "qa approval status is current"
+      "qa approval status is current",
+      "retention_hook is present",
+      "style_prompt is present",
+      "motion_prompt is present",
+      "low_two_second_hook must be false"
     ],
     "cost_estimate": {
       "model": "doubao-seedance-2-0-fast-260128",
@@ -80,7 +97,12 @@
   "audio_policy": {
     "video_model_sound_generation": "allowed_as_reference",
     "source_audio_in_final_mix": "forbidden",
-    "final_audio_layers": ["voice", "sfx", "ambience", "bgm"],
+    "final_audio_layers": [
+      "voice",
+      "sfx",
+      "ambience",
+      "bgm"
+    ],
     "model_sfx_reuse_rule": "模型音效只能转写成后期 SFX cue，不能直接混入最终 MP4。"
   },
   "first_paid_test": {
@@ -89,5 +111,31 @@
     "local_output": "outputs/clips/E01_S011.mp4",
     "reason": "已有真实 Codex 云舟首帧，且是第一集奇观镜头，适合低成本验证 Seedance 首帧延展能力。",
     "estimated_cost_rmb": 1.86
+  },
+  "retention_policy": {
+    "first_two_seconds_required": true,
+    "required_hook_types": [
+      "face_hook",
+      "prop_hook",
+      "scale_hook",
+      "result_hook",
+      "sound_hook"
+    ],
+    "rule": "每个视频节点和关键参考图必须在开头0-2秒提供可理解的视觉钩子；如果缺失，标记 low_two_second_hook。"
+  },
+  "visual_style_policy": {
+    "desired_style": "古典仙门外壳 + 玉银悬浮科技感 + 真实村落肌理 + 美剧式镜头层次",
+    "forbidden_style_drift": [
+      "generic_ai_look",
+      "overmodern_scifi",
+      "too_scifi",
+      "over_fantasy"
+    ],
+    "required_checks_before_video_reference": [
+      "low_two_second_hook must be false",
+      "generic_ai_look must be false",
+      "character_attractiveness_low must be false",
+      "cinematic_layering_weak must be false"
+    ]
   }
 }

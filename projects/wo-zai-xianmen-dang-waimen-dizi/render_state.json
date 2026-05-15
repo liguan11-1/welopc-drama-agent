@@ -23,6 +23,24 @@
       "status": "generated_needs_final_qa",
       "provider": "codex_imagegen",
       "qa_note": "林溪举卷起树叶筒看天，可作为开场候选首帧；进入视频前仍需审核服装洁净度和动作清晰度。"
+    },
+    "character_lin_xi_action_sheet": {
+      "path": "assets/reference_images/characters/lin_xi_action_sheet.png",
+      "status": "generated_selected",
+      "provider": "codex_imagegen",
+      "qa_note": "包含树叶筒看天、灶前扇火、测灵、离别挥手等关键动作；未再出现竹筒或小布袋污染。"
+    },
+    "character_wen_gengran_action_sheet": {
+      "path": "assets/reference_images/characters/wen_gengran_action_sheet.png",
+      "status": "generated_candidate",
+      "provider": "codex_imagegen",
+      "qa_note": "动作信息完整，年龄仍略偏成熟；后续首帧优先参考端茶、回礼、收拾桂花糕、目送等姿态，不直接当正片首帧。"
+    },
+    "character_xiao_huai_envoy_action_sheet": {
+      "path": "assets/reference_images/characters/xiao_huai_envoy_action_sheet.png",
+      "status": "generated_selected",
+      "provider": "codex_imagegen",
+      "qa_note": "包含示意队列、持拂尘、查看铜镜、记录、测骨龄、温和招手等接引流程动作。"
     }
   },
   "videos": {},
@@ -30,5 +48,5 @@
     "reason": "旧中板和旧 E01_S011 / packed clips 未完成源文锁定，只作为接口连通样片，不进入新版正片。",
     "archived_at": "2026-05-15T12:31:38.912125+00:00"
   },
-  "updated_at": "2026-05-15T13:35:00+00:00"
+  "updated_at": "2026-05-15T14:05:00+00:00"
 }

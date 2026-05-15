@@ -126,13 +126,13 @@
       ],
       "outputs": [
         "assets/reference_images/characters/*.png",
+        "assets/reference_images/characters/*_action_sheet.png",
         "assets/reference_images/characters/multiview/<character_id>/*.png",
         "character_feature_codes.json",
         "character_prompts.jsonl"
       ],
       "missing": [
         "villagers.png",
-        "lin_xi_expression_and_action_sheet.png",
         "lin_xi_multiview_orthographic_set",
         "wen_gengran_multiview_orthographic_set",
         "xiao_huai_envoy_multiview_orthographic_set"

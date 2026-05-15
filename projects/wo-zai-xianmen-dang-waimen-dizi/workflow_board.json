@@ -21,6 +21,38 @@
       "cost_guard": "不要按旧 37 个短分镜逐条提交 Seedance；新版第一集先完成源文锁定和分镜重写，再按打包节点和静态镜头策略压缩任务数。",
       "adapter_requirement": "支持多图时传入 reference_frames[]；只支持首帧时必须记录降级，并把所有节拍图写入 prompt 元数据。"
     },
+    "character_consistency_strategy": {
+      "enabled": true,
+      "goal": "电影级角色一致性：用人物设定、角色特征码、多视角正交图、动作表和场景融合图控制跨镜头角色稳定性。",
+      "feature_code_required": true,
+      "feature_code_fields": [
+        "face_shape",
+        "age_ratio",
+        "expression_baseline",
+        "hair_style",
+        "costume",
+        "accessories",
+        "signature_props",
+        "do_not_change"
+      ],
+      "asset_sequence": [
+        "character_reference",
+        "character_feature_code",
+        "character_multiview_orthographic_set",
+        "character_action_sheet",
+        "character_scene_fusion",
+        "video_reference_frame"
+      ],
+      "cross_scene_targets": [
+        "close_up",
+        "wide_shot",
+        "dynamic_action",
+        "village_daylight",
+        "sky_boat_cool_light",
+        "sect_square_crowd"
+      ],
+      "cost_guard": "人物资产包通过审核后再进入付费视频节点，减少跳脸、服装错位、年龄漂移导致的返工。"
+    },
     "subtitle_strategy": {
       "dialogue_source": "shots.jsonl dialogue_or_caption",
       "information_source": "subtitle_timeline.jsonl",
@@ -85,20 +117,25 @@
       "status": "partial",
       "inputs": [
         "characters.json",
+        "CHARACTER_PROMPT_SYSTEM.md",
+        "character_feature_codes.json",
         "assets/reference_images/characters/lin_xi.png",
         "assets/reference_images/characters/wen_gengran.png",
+        "assets/reference_images/characters/xiao_huai_envoy.png",
         "external_workflows/runninghub_qwen_character_multiview.md"
       ],
       "outputs": [
         "assets/reference_images/characters/*.png",
-        "assets/reference_images/characters/multiview/<character_id>/*.png"
+        "assets/reference_images/characters/multiview/<character_id>/*.png",
+        "character_feature_codes.json",
+        "character_prompts.jsonl"
       ],
       "missing": [
-        "xiao_huai_envoy.png",
         "villagers.png",
         "lin_xi_expression_and_action_sheet.png",
         "lin_xi_multiview_orthographic_set",
-        "wen_gengran_multiview_orthographic_set"
+        "wen_gengran_multiview_orthographic_set",
+        "xiao_huai_envoy_multiview_orthographic_set"
       ],
       "external_workflows": [
         {

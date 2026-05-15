@@ -6,7 +6,7 @@
   },
   "tags": {
     "face_drift": "人物脸、年龄、五官或气质发生明显漂移。",
-    "costume_drift": "林溪双辫、补丁衣、蓝腰带、小布袋、草鞋，或温庚然灰发灰须、旧灰袍等关键识别点丢失。",
+    "costume_drift": "林溪双辫、少量补丁旧衣、草鞋、树叶筒，或温庚然短灰须、旧灰袍、木摇椅/茶壶/药架等关键识别点丢失。",
     "scene_drift": "场景偏离平溪村、安然堂、村口或云舟甲板设定。",
     "too_scifi": "云舟、甲板或法器看起来像现代科幻飞船。",
     "over_fantasy": "村落前半段过度仙侠化，削弱日常和离乡感。",
@@ -18,7 +18,31 @@
     "missing_beat_reference": "打包节点里某个 visual beat 没有对应 image_ref 或参考图未通过审核。",
     "beat_transition_unclear": "一个 5 秒节点内的分镜转场不清楚，模型可能把两个镜头混成一个动作。",
     "model_audio_leak": "最终混音直接使用了视频模型源音轨。",
-    "model_sfx_reference_only": "模型音效只作参考，最终 SFX 必须来自后期音轨。"
+    "model_sfx_reference_only": "模型音效只作参考，最终 SFX 必须来自后期音轨。",
+    "view_missing": "人物多视角资产缺少正面、侧面、背面、过肩、俯拍、仰拍或面部特写等关键角度。",
+    "age_drift": "儿童、长辈、接引女修等年龄感漂移，导致角色不再符合原设；例如林溪成人化、温庚然70岁以上病弱化、女修50岁以上老化。",
+    "body_proportion_drift": "身高、头身比、肩宽、手脚比例或体态与角色特征码不一致。",
+    "background_not_white": "多视角正交图没有保持白底棚拍条件，影响后续一致性抽取。",
+    "feature_code_missing": "核心角色缺少 character_feature_code，后续镜头无法稳定继承人物特征。"
+  },
+  "character_consistency": {
+    "feature_code_required_for_core_characters": true,
+    "core_character_ids": ["lin_xi", "wen_gengran", "xiao_huai_envoy"],
+    "required_assets_before_scene_fusion": [
+      "character_reference",
+      "character_feature_codes.json entry",
+      "character_multiview_orthographic_set"
+    ],
+    "required_checks_before_video_reference": [
+      "feature_code_missing must be false",
+      "face_drift must be false",
+      "age_drift must be false",
+      "body_proportion_drift must be false",
+      "costume_drift must be false",
+      "lighting_mismatch must be false"
+    ],
+    "multiview_output_root": "assets/reference_images/characters/multiview/<character_id>/",
+    "rule": "人物多视角图是跨镜头一致性资产，不直接作为正片视频首帧；正片首帧必须经过场景融合和光影审核。"
   },
   "required_checks_before_seedance": [
     "face_drift must be false",

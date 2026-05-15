@@ -1,9 +1,34 @@
 {
-  "images": {},
+  "images": {
+    "character_lin_xi_reference": {
+      "path": "assets/reference_images/characters/lin_xi.png",
+      "status": "generated_needs_action_sheet",
+      "provider": "codex_imagegen",
+      "qa_note": "服装为平溪村旧衣，树叶筒和紧张期待感可用。"
+    },
+    "character_wen_gengran_reference": {
+      "path": "assets/reference_images/characters/wen_gengran.png",
+      "status": "generated_selected",
+      "provider": "codex_imagegen",
+      "qa_note": "已从偏老版本修正为50-55岁安然堂村长师傅感，具备摇椅、茶碗、药架锚点。"
+    },
+    "character_xiao_huai_envoy_reference": {
+      "path": "assets/reference_images/characters/xiao_huai_envoy.png",
+      "status": "generated_selected",
+      "provider": "codex_imagegen",
+      "qa_note": "35岁左右接引负责人，测灵队列、拂尘和登记板可用。"
+    },
+    "E01_S002_video_reference_frame": {
+      "path": "assets/reference_images/video_refs/E01_S002.png",
+      "status": "generated_needs_final_qa",
+      "provider": "codex_imagegen",
+      "qa_note": "林溪举卷起树叶筒看天，可作为开场候选首帧；进入视频前仍需审核服装洁净度和动作清晰度。"
+    }
+  },
   "videos": {},
   "archived_previous_midboard": {
     "reason": "旧中板和旧 E01_S011 / packed clips 未完成源文锁定，只作为接口连通样片，不进入新版正片。",
     "archived_at": "2026-05-15T12:31:38.912125+00:00"
   },
-  "updated_at": "2026-05-15T12:31:38.912125+00:00"
+  "updated_at": "2026-05-15T13:35:00+00:00"
 }

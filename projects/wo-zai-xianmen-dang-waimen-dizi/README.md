@@ -26,6 +26,14 @@
 - 如果当前适配器只能传首帧，必须把其余节拍图写入请求元数据和 prompt，并记录降级。
 - 成片剪辑时仍按短分镜切点裁切，不让 5 秒最低时长拖慢节奏。
 
+第二条主线是“电影级角色一致性”。人物线不再只生成单张角色图，而是按角色特征码、多视角正交图、动作表、场景融合图和视频首帧逐层推进：
+
+- 每个核心角色要按 `CHARACTER_PROMPT_SYSTEM.md` 拆成身份、年龄边界、脸部识别点、性格外化、服装道具、场景锚点和负向规则，再沉淀到 `character_feature_codes.json`，锁定五官轮廓、年龄比例、神态、发型、服装、配饰和关键道具。
+- 接入 RunningHub Qwen 人物多视角工作流，把已审核角色图扩展为 16 个白底正交视角。
+- 多视角图只作为一致性资产，不直接进入正片；正片首帧必须经过场景融合和光影审核。
+- 跨镜头、跨场景生成时优先引用已审核的人物资产包，避免面部失真、造型跳脱和年龄漂移。
+- 人物资产通过后再进入付费视频节点，降低跳脸返工和视频额度浪费。
+
 成本估算：按本地价格快照，480p 5 秒 `doubao-seedance-2-0-fast-260128` 约 1.86 元/个。旧 37 镜逐条提交约 68.82 元；旧 17 个打包节点约 31.62 元。新版 15 个节点预计视频模型基础成本约 27.90 元，真实费用以火山方舟账单为准。
 
 ## 关键文件
@@ -38,6 +46,7 @@
 - `video_node_packing_rules.md`：5 秒节点打包、参考图、成本和音效规则。
 - `qa_rules.json`：人工审核标签、Seedance 前置门禁、打包节点门禁。
 - `workflow_board.json`：机器可读生产看板。
+- `external_workflows/runninghub_qwen_character_multiview.md`：Qwen 人物多视角工作流抓取和人物线接入规则。
 - `audio_plan.md`：BGM、SFX、人物声音和字幕策略。
 - `audio_layer_design.md`：最终剪辑层级、模型原声处理和后期混音规则。
 - `subtitle_timeline.jsonl`：非对白信息字幕时间线。
@@ -48,11 +57,12 @@
 ## 执行规则
 
 1. 先补人物、场景、融合图和多机位图，不直接批量烧视频额度。
-2. 按 `video_node_packing_plan.jsonl` 的 `visual_beats` 补参考图，而不是只按单镜头补图。
-3. 参考图必须按 `qa_rules.json` 人工审核，通过后才能进入 `assets/reference_images/video_refs/`。
-4. `video_node_packing_plan.jsonl`、`qa_rules.json`、`shots.jsonl`、音频方案或字幕方案变化后，都必须重新 `approve`。
-5. 付费执行前先跑 `preflight`，确认审批、参考图、音频和字幕状态。
-6. 视频模型可理解音效，但模型音频只作参考；最终混音不使用源视频音轨。
+2. 核心角色先完成特征码、多视角正交图和动作表，再进入人物+场景融合。
+3. 按 `video_node_packing_plan.jsonl` 的 `visual_beats` 补参考图，而不是只按单镜头补图。
+4. 参考图必须按 `qa_rules.json` 人工审核，通过后才能进入 `assets/reference_images/video_refs/`。
+5. `video_node_packing_plan.jsonl`、`qa_rules.json`、`shots.jsonl`、音频方案或字幕方案变化后，都必须重新 `approve`。
+6. 付费执行前先跑 `preflight`，确认审批、参考图、音频和字幕状态。
+7. 视频模型可理解音效，但模型音频只作参考；最终混音不使用源视频音轨。
 
 ## 常用命令
 

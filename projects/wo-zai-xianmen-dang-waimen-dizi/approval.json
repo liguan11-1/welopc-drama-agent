@@ -1,5 +1,6 @@
 {
-  "approved": true,
-  "approved_at": "2026-05-14T19:07:37.072Z",
-  "package_hash": "21140f5e2ff10952539517ecb9501378240bf996da440bb1ae6e61c336cb89f9"
+  "approved": false,
+  "approved_at": null,
+  "package_hash": null,
+  "reason": "E01 已按源文重写，参考图和视频节点需重新生成并重新审批后才能付费渲染。"
 }

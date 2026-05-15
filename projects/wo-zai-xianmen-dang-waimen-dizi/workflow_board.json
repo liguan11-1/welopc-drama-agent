@@ -4,26 +4,27 @@
     "qa_required_before_seedance": true,
     "episode_pacing": {
       "episode_id": "E01",
-      "duration_sec": 70,
-      "shot_count": 37,
-      "average_shot_sec": 1.89,
+      "duration_sec": 75,
+      "shot_count": 35,
+      "average_shot_sec": 2.14,
       "max_single_shot_sec": 2.8,
-      "first_paid_test_shot": "E01_S011"
+      "first_paid_test_shot": null,
+      "status": "source_locked_storyboard"
     },
     "video_node_packing_strategy": {
       "enabled": true,
       "plan_file": "video_node_packing_plan.jsonl",
       "provider_duration_sec": 5,
-      "current_pack_count": 17,
-      "source_shot_count": 37,
+      "current_pack_count": 15,
+      "source_shot_count": 35,
       "rule": "连续短镜头先打包为 5 秒以内视频节点，每个 visual beat 必须有对应参考图，再提交付费视频。",
-      "cost_guard": "不要按 37 个短分镜逐条提交 Seedance；先按打包节点和静态镜头策略压缩任务数。",
+      "cost_guard": "不要按旧 37 个短分镜逐条提交 Seedance；新版第一集先完成源文锁定和分镜重写，再按打包节点和静态镜头策略压缩任务数。",
       "adapter_requirement": "支持多图时传入 reference_frames[]；只支持首帧时必须记录降级，并把所有节拍图写入 prompt 元数据。"
     },
     "subtitle_strategy": {
       "dialogue_source": "shots.jsonl dialogue_or_caption",
       "information_source": "subtitle_timeline.jsonl",
-      "non_dialogue_subtitle_count": 6,
+      "non_dialogue_subtitle_count": 5,
       "voice_strategy": "no_tts_for_information_subtitles"
     },
     "audio_layer_strategy": {
@@ -32,102 +33,222 @@
       "final_audio_source": "post_layers_only",
       "seedance_provider_duration_sec": 5,
       "final_clip_duration_source": "shots.jsonl duration_sec or video_node_packing_plan visual_beats",
-      "mix_priority": ["voice", "sfx", "ambience", "bgm"]
+      "mix_priority": [
+        "voice",
+        "sfx",
+        "ambience",
+        "bgm"
+      ]
     }
   },
   "project": {
     "project_id": "xianmen_outer_disciple_s1",
     "title": "我在仙门当外门弟子",
     "episode_id": "E01",
-    "episode_title": "云舟来村",
+    "episode_title": "平溪村云舟",
     "ratio": "9:16"
   },
   "lanes": [
     {
       "lane_id": "content_design",
       "name": "内容设定",
-      "status": "done",
-      "inputs": ["story_bible.md"],
-      "outputs": ["shots.jsonl", "voiceover_script.md", "subtitle_timeline.jsonl"],
-      "notes": "E01 已升级为 70 秒 37 镜短切版本，并补 6 条非对白信息字幕。"
+      "status": "source_locked_rewritten",
+      "inputs": [
+        "SOURCE_AUDIT.md",
+        "E01_REWRITE_PLAN.md",
+        "story_bible.md"
+      ],
+      "outputs": [
+        "shots.jsonl",
+        "voiceover_script.md",
+        "subtitle_timeline.jsonl"
+      ],
+      "notes": "E01 已按原文第一章重写为 75 秒 35 镜，结尾落在林溪离开平溪村。"
     },
     {
       "lane_id": "video_node_packing",
       "name": "5秒视频节点打包",
       "status": "drafted",
-      "inputs": ["shots.jsonl", "qa_rules.json"],
-      "outputs": ["video_node_packing_plan.jsonl", "video_node_packing_rules.md"],
-      "notes": "37 个短分镜已拆成 17 个候选付费视频节点；每个节点需要补齐 visual_beats 对应参考图后才能提交。"
+      "inputs": [
+        "shots.jsonl",
+        "qa_rules.json"
+      ],
+      "outputs": [
+        "video_node_packing_plan.jsonl",
+        "video_node_packing_rules.md"
+      ],
+      "notes": "新版 35 镜已重打包为 15 个 5 秒付费视频节点；需补齐清晰参考图后才能提交。"
     },
     {
       "lane_id": "character_consistency",
       "name": "人物一致性",
       "status": "partial",
-      "inputs": ["characters.json", "assets/reference_images/characters/lin_xi.png", "assets/reference_images/characters/wen_gengran.png"],
-      "outputs": ["assets/reference_images/characters/*.png"],
-      "missing": ["xiao_huai_envoy.png", "villagers.png", "lin_xi_expression_and_action_sheet.png"]
+      "inputs": [
+        "characters.json",
+        "assets/reference_images/characters/lin_xi.png",
+        "assets/reference_images/characters/wen_gengran.png",
+        "external_workflows/runninghub_qwen_character_multiview.md"
+      ],
+      "outputs": [
+        "assets/reference_images/characters/*.png",
+        "assets/reference_images/characters/multiview/<character_id>/*.png"
+      ],
+      "missing": [
+        "xiao_huai_envoy.png",
+        "villagers.png",
+        "lin_xi_expression_and_action_sheet.png",
+        "lin_xi_multiview_orthographic_set",
+        "wen_gengran_multiview_orthographic_set"
+      ],
+      "external_workflows": [
+        {
+          "workflow_id": "2055262096950087681",
+          "source": "https://www.runninghub.cn/workflow/2055262096950087681",
+          "name": "Qwen影视人物多视角制作【傲雪AIGC 】",
+          "local_export": "external_workflows/runninghub_2055262096950087681_comfy_export.json",
+          "role": "把已审核人物参考图扩展为 16 个白底正交视角，供动作表、场景融合和视频首帧筛选使用。",
+          "output_root": "assets/reference_images/characters/multiview/<character_id>/",
+          "qa_focus": [
+            "view_missing",
+            "age_drift",
+            "body_proportion_drift",
+            "costume_drift",
+            "face_drift",
+            "bad_hands",
+            "background_not_white"
+          ]
+        }
+      ]
     },
     {
       "lane_id": "scene_moodboard",
       "name": "场景 moodboard",
       "status": "pending",
-      "inputs": ["scenes.json"],
-      "outputs": ["assets/reference_images/moodboards/*.png"]
+      "inputs": [
+        "scenes.json"
+      ],
+      "outputs": [
+        "assets/reference_images/moodboards/*.png"
+      ]
     },
     {
       "lane_id": "lighting_tests",
       "name": "光影调性",
       "status": "pending",
-      "inputs": ["style_pack.json", "assets/reference_images/scenes/pingxi_courtyard.png"],
-      "outputs": ["assets/reference_images/lighting_tests/*.png"]
+      "inputs": [
+        "style_pack.json",
+        "assets/reference_images/scenes/pingxi_courtyard.png"
+      ],
+      "outputs": [
+        "assets/reference_images/lighting_tests/*.png"
+      ]
     },
     {
       "lane_id": "fusion_tests",
       "name": "人物+场景融合",
       "status": "pending",
-      "inputs": ["fusion_prompts.jsonl"],
-      "outputs": ["assets/reference_images/fusion_tests/*.png"]
+      "inputs": [
+        "fusion_prompts.jsonl"
+      ],
+      "outputs": [
+        "assets/reference_images/fusion_tests/*.png"
+      ]
     },
     {
       "lane_id": "multicam_tests",
       "name": "九宫格多机位",
       "status": "pending",
-      "inputs": ["multicam_prompts.jsonl"],
-      "outputs": ["assets/reference_images/multicam/*.png"]
+      "inputs": [
+        "multicam_prompts.jsonl"
+      ],
+      "outputs": [
+        "assets/reference_images/multicam/*.png"
+      ]
     },
     {
       "lane_id": "video_reference_frames",
       "name": "视频参考图",
       "status": "partial",
-      "inputs": ["imagegen_prompts.jsonl", "experiments.jsonl", "video_node_packing_plan.jsonl"],
-      "outputs": ["assets/reference_images/video_refs/*.png"],
-      "ready": ["E01_S001", "E01_S002", "E01_S003", "E01_S004", "E01_S005", "E01_S006", "E01_S007", "E01_S008", "E01_S009", "E01_S010", "E01_S011"],
-      "ready_packed_nodes": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_003", "E01_PACK_004", "E01_PACK_005"],
+      "inputs": [
+        "imagegen_prompts.jsonl",
+        "experiments.jsonl",
+        "video_node_packing_plan.jsonl"
+      ],
+      "outputs": [
+        "assets/reference_images/video_refs/*.png"
+      ],
+      "ready": [
+        "E01_S001",
+        "E01_S002",
+        "E01_S003",
+        "E01_S004",
+        "E01_S005",
+        "E01_S006",
+        "E01_S007",
+        "E01_S008",
+        "E01_S009",
+        "E01_S010",
+        "E01_S011"
+      ],
+      "ready_packed_nodes": [
+        "E01_PACK_001",
+        "E01_PACK_002",
+        "E01_PACK_003",
+        "E01_PACK_004",
+        "E01_PACK_005"
+      ],
       "rule": "不要只为单镜头出图；按 video_node_packing_plan 的 visual_beats 补图。"
     },
     {
       "lane_id": "seedance_execution",
       "name": "Seedance 视频执行",
       "status": "partial",
-      "inputs": ["video_node_packing_plan.jsonl", "video_prompts.jsonl", "assets/reference_images/video_refs/*.png"],
-      "outputs": ["outputs/clips/*.mp4"],
-      "ready": ["E01_PACK_001", "E01_PACK_002", "E01_PACK_003", "E01_PACK_004", "E01_PACK_005"],
+      "inputs": [
+        "video_node_packing_plan.jsonl",
+        "video_prompts.jsonl",
+        "assets/reference_images/video_refs/*.png"
+      ],
+      "outputs": [
+        "outputs/clips/*.mp4"
+      ],
+      "ready": [
+        "E01_PACK_001",
+        "E01_PACK_002",
+        "E01_PACK_003",
+        "E01_PACK_004",
+        "E01_PACK_005"
+      ],
       "cost_guard": "render --execute requires approved real Codex video_refs image; packed nodes require all beat references before paid submit."
     },
     {
       "lane_id": "audio_design",
       "name": "音乐和声音设计",
       "status": "partial",
-      "inputs": ["audio_plan.md", "audio_layer_design.md", "bgm_prompts.jsonl", "sfx_prompts.jsonl"],
-      "outputs": ["assets/audio/bgm.mp3", "assets/audio/sfx/*.mp3", "outputs/audio/mix_plan.json"],
+      "inputs": [
+        "audio_plan.md",
+        "audio_layer_design.md",
+        "bgm_prompts.jsonl",
+        "sfx_prompts.jsonl"
+      ],
+      "outputs": [
+        "assets/audio/bgm.mp3",
+        "assets/audio/sfx/*.mp3",
+        "outputs/audio/mix_plan.json"
+      ],
       "rule": "模型音效只作参考；最终混音使用后期可控音轨。"
     },
     {
       "lane_id": "qa_review",
       "name": "人工审核回写",
       "status": "pending",
-      "inputs": ["qa_rules.json", "review_checklist.md"],
-      "outputs": ["experiments.jsonl review_result fields", "approved video_refs"]
+      "inputs": [
+        "qa_rules.json",
+        "review_checklist.md"
+      ],
+      "outputs": [
+        "experiments.jsonl review_result fields",
+        "approved video_refs"
+      ]
     }
   ]
 }

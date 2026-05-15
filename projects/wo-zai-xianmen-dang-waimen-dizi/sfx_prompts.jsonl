@@ -1,7 +1,5 @@
-{"cue_id":"E01_S002_charcoal_wall","shot_id":"E01_S002","start_sec":1.6,"duration_sec":1.2,"prompt":"dry charcoal drawing on rough mud wall, small child's finger movement, close natural courtyard foley.","asset_path":"assets/audio/sfx/E01_S002_charcoal_wall.mp3"}
-{"cue_id":"E01_S003_bamboo_scope","shot_id":"E01_S003","start_sec":3.3,"duration_sec":1.0,"prompt":"dry bamboo tube lightly tapping small hands, close foley, natural outdoor courtyard.","asset_path":"assets/audio/sfx/E01_S003_bamboo_scope.mp3"}
-{"cue_id":"E01_S009_kettle_shadow","shot_id":"E01_S009","start_sec":13.8,"duration_sec":2.2,"prompt":"old iron kettle steam whistle rising sharply, then muffled by huge low-frequency shadow, cinematic foley.","asset_path":"assets/audio/sfx/E01_S009_kettle_shadow.mp3"}
-{"cue_id":"E01_S011_cloud_boat_descent","shot_id":"E01_S011","start_sec":17.6,"duration_sec":2.8,"prompt":"massive celestial wooden ship descending through clouds, low rumble, water barrier shimmer, distant jade bells, no engine sound.","asset_path":"assets/audio/sfx/E01_S011_cloud_boat_descent.mp3"}
-{"cue_id":"E01_S021_whisk_lift","shot_id":"E01_S021","start_sec":35.8,"duration_sec":2.0,"prompt":"soft whisk sweep creating thin spiritual light threads, airy silk whoosh, subtle jade chime, not cartoon magic.","asset_path":"assets/audio/sfx/E01_S021_whisk_lift.mp3"}
-{"cue_id":"E01_S026_pouch_string","shot_id":"E01_S026","start_sec":45.8,"duration_sec":1.4,"prompt":"small cloth pouch string snapping loose in strong wind, child hand gripping fabric, intimate close foley.","asset_path":"assets/audio/sfx/E01_S026_pouch_string.mp3"}
-{"cue_id":"E01_S035_to_S037_spirit_mirror_three_notes","shot_id":"E01_S035","start_sec":65.0,"duration_sec":5.0,"prompt":"bronze spirit mirror flashes three short notes: metal, water, wood, mysterious restrained hook, then sudden low silence.","asset_path":"assets/audio/sfx/E01_S035_to_S037_spirit_mirror_three_notes.mp3"}
+{"sfx_id":"SFX_E01_KETTLE","anchor_shots":["E01_S007","E01_S008","E01_S009"],"prompt":"老水壶尖鸣从日常声变成云舟降临的声音钩子。"}
+{"sfx_id":"SFX_E01_CLOUD_BOAT","anchor_shots":["E01_S009","E01_S011","E01_S035"],"prompt":"巨大云舟低频、水波结界、木质船体轻震。"}
+{"sfx_id":"SFX_E01_WHISK","anchor_shots":["E01_S016","E01_S018"],"prompt":"拂尘灵线牵引，轻而清，不要魔法爆炸。"}
+{"sfx_id":"SFX_E01_MIRROR","anchor_shots":["E01_S019","E01_S025","E01_S026"],"prompt":"铜镜低频颤动，金蓝青绿三色短鸣。"}
+{"sfx_id":"SFX_E01_BUNDLE","anchor_shots":["E01_S031","E01_S033"],"prompt":"衣物塞进行囊、纸包桂花糕、拉勾时的细小衣料声。"}

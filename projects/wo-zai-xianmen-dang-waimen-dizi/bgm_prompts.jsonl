@@ -1,4 +1,5 @@
-{"cue_id":"bgm_main_v01","duration_sec":70,"prompt":"Chinese xianxia short drama background music, starts with quiet village wood flute and soft plucked strings, then a huge celestial boat appears with low percussion, cloud bells, airy female pad, emotional restrained farewell, final mysterious three-note spirit mirror hook, cinematic but not overdramatic, no vocals, loop-safe ending.","volume":0.45}
-{"cue_id":"bgm_village_loop","duration_sec":18,"prompt":"warm mountain village ambience music, bamboo flute single notes, soft guqin plucks, morning wind, restrained and realistic, no modern beat.","volume":0.35}
-{"cue_id":"bgm_cloud_boat_sting","duration_sec":14,"prompt":"xianxia celestial ship reveal sting, low cinematic rumble, jade bells, water barrier shimmer, awe and pressure, no choir lyrics.","volume":0.55}
-
+{"cue_id":"BGM_E01_A","time_range":"0.0-14.0s","prompt":"平溪村日常，木笛单音、轻拨弦、摇椅和灶火，温暖但带等待感。"}
+{"cue_id":"BGM_E01_B","time_range":"14.0-25.0s","prompt":"云舟阴影压下，木笛停，低频和水壶尖鸣进入，保持克制。"}
+{"cue_id":"BGM_E01_C","time_range":"25.0-41.0s","prompt":"接引流程，弱鼓点和拂尘灵线，仪式感但不要反派化。"}
+{"cue_id":"BGM_E01_D","time_range":"41.0-60.0s","prompt":"铜镜测灵，三色短鸣，命运转折，女修语气变温和。"}
+{"cue_id":"BGM_E01_E","time_range":"60.0-75.0s","prompt":"离别低弦，风声，抽掉鼓点，压住哭声。"}

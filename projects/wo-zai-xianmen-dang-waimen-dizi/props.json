@@ -1,28 +1,37 @@
 [
   {
-    "prop_id": "bamboo_scope",
-    "name": "竹筒",
-    "function": "林溪偷看天空的儿童化道具，强化她对仙门的向往。"
+    "prop_id": "leaf_scope",
+    "name": "卷起的树叶筒",
+    "function": "林溪看天的儿童化道具，来自原文第一章。"
   },
   {
     "prop_id": "kettle",
     "name": "老水壶",
-    "function": "用尖叫声打断林溪看天，也作为云舟降临前的声音预警。"
+    "function": "壶口尖鸣代替林溪内心兴奋的尖叫，也是云舟降临的声音钩子。"
   },
   {
     "prop_id": "whisk",
     "name": "霄怀派拂尘",
-    "function": "女修用来牵引孩童升空，视觉上冷淡、流程化。"
+    "function": "女修牵引孩童上云舟的法器。"
   },
   {
     "prop_id": "spirit_mirror",
     "name": "铜镜测灵器",
-    "function": "第一集结尾钩子，暗示林溪金、水、木三灵根。"
+    "function": "纯金镜框、繁杂符文、上下红宝石；测出林溪金水木三灵根。"
+  },
+  {
+    "prop_id": "wooden_token",
+    "name": "桃木牌",
+    "function": "刻着小剑、树叶和水滴，表示林溪的灵根属性。"
+  },
+  {
+    "prop_id": "travel_bundle",
+    "name": "行囊",
+    "function": "装衣物、玩偶和两块桂花糕，是离别段情绪道具。"
   },
   {
     "prop_id": "cloud_boat",
     "name": "霄怀派云舟",
-    "function": "改变命运的巨大物件，既是奇观，也是离乡压力。"
+    "function": "改变林溪命运的巨大物件，低悬树梢，带灵力结界。"
   }
 ]
-
